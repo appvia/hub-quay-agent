@@ -1,0 +1,348 @@
+---
+swagger: '2.0'
+info:
+  contact:
+    name: admin@appvia.io
+    url: https://github.com/appvia/hub-quay-agent
+    email: support@appvia.io
+  description: an agent used to provision and configure repositories in quay
+  title: hub-quay-agent
+  version: v1beta
+schemes:
+  - http
+securityDefinitions:
+  apikey:
+    type: apiKey
+    in: header
+    name: x-token
+basePath: "/api/hub.appvia.io/v1beta"
+consumes:
+  - application/json
+produces:
+  - application/json
+
+responses:
+  apierror:
+    description: A generic erorr returned by the api
+    schema:
+      "$ref": "#/definitions/APIError"
+  notfound:
+    description: The resource does not exist
+  robot:
+    description: Returning the status of a robot account
+    schema:
+      "$ref": "#/definitions/Robot"
+  robots:
+    description: Returning a list of robot accounts
+    schema:
+      "$ref": "#/definitions/RobotList"
+  repository:
+    description: The specification of a repository in the registry
+    schema:
+      "$ref": "#/definitions/Repository"
+  repositories:
+    description: A collection repositories found in the registry
+    schema:
+      "$ref": "#/definitions/RepositoryList"
+
+parameters:
+  authinfo:
+    name: X-AuthInfo
+    description: An authentication context to speak to the backend of behalf of the Hub
+    in: header
+    type: string
+    required: false
+  name:
+    name: name
+    description: The name of the repository you are acting upon
+    in: path
+    type: string
+    required: true
+  namespace:
+    name: namespace
+    description: The namespace of the repostory
+    in: path
+    type: string
+    required: true
+  repository:
+    name: repository
+    description: The repository definition we are acting on
+    in: body
+    schema:
+      "$ref": "#/definitions/Repository"
+    required: true
+  robot:
+    name: robot
+    description: The definition of a robot account within the registry
+    in: body
+    schema:
+      "$ref": "#/definitions/Robot"
+    required: true
+
+paths:
+  "/healthz":
+    get:
+      summary: Get health of Agent
+      description: |
+        Returns health and status information of the API daemon and
+        related components such as the runtime.
+      tags:
+        - health
+      responses:
+        '200':
+          description: Success
+        default:
+          "$ref": "#/responses/apierror"
+
+  "/robots/{namespace}":
+    get:
+      summary: Retrieves a list of robot accounts from within the registry
+      description: |
+        Used to retrieve a list of robot accounts and the permissions they
+        have on the repositories
+      parameters:
+        - "$ref": "#/parameters/namespace"
+      responses:
+        '200':
+          "$ref": "#/responses/robots"
+        default:
+          "$ref": "#/responses/apierror"
+
+  "/robots/{namespace}/{name}":
+    get:
+      summary: Retrieves a list of robot accounts from within the registry
+      description: |
+        Used to retrieve a list of robot accounts and the permissions they
+        have on the repositories
+      parameters:
+        - "$ref": "#/parameters/namespace"
+        - "$ref": "#/parameters/name"
+      responses:
+        '200':
+          "$ref": "#/responses/robot"
+        '404':
+          "$ref": "#/responses/apierror"
+        default:
+          "$ref": "#/responses/apierror"
+
+    post:
+      summary: Retrieves a list of robot accounts from within the registry
+      description: |
+        Used to retrieve a list of robot accounts and the permissions they
+        have on the repositories
+      parameters:
+        - "$ref": "#/parameters/namespace"
+        - "$ref": "#/parameters/name"
+        - "$ref": "#/parameters/robot"
+      responses:
+        '200':
+          "$ref": "#/responses/robot"
+        default:
+          "$ref": "#/responses/apierror"
+
+  "/registry/{namespace}":
+    get:
+      summary: Retrieves a list of respositories witin the registry
+      description: |
+        Used to retrieve a repository from the registry
+      parameters:
+        - "$ref": "#/parameters/namespace"
+      responses:
+        '200':
+          "$ref": "#/responses/repositories"
+        default:
+          "$ref": "#/responses/apierror"
+
+  "/registry/{namespace}/{name}":
+    get:
+      summary: Retrieves a list of respositories witin the registry
+      description: |
+        Used to retrieve a repository from the registry
+      parameters:
+        - "$ref": "#/parameters/namespace"
+        - "$ref": "#/parameters/name"
+      responses:
+        '200':
+          "$ref": "#/responses/repository"
+        '404':
+          "$ref": "#/responses/apierror"
+        default:
+          "$ref": "#/responses/apierror"
+
+    post:
+      summary: Create a new repository within Quay
+      description: |
+        Used to create a new repository and registry
+      parameters:
+        - "$ref": "#/parameters/namespace"
+        - "$ref": "#/parameters/name"
+        - "$ref": "#/parameters/repository"
+      responses:
+        '200':
+          "$ref": "#/responses/repository"
+        default:
+          "$ref": "#/responses/apierror"
+
+    delete:
+      summary: Responsible for deleting a repository
+      description: |
+        Deletes the repository, the associated user policy and all images associated
+      parameters:
+        - "$ref": "#/parameters/namespace"
+        - "$ref": "#/parameters/name"
+        - "$ref": "#/parameters/repository"
+      responses:
+        '200':
+          "$ref": "#/responses/repository"
+        default:
+          "$ref": "#/responses/apierror"
+
+definitions:
+  APIError:
+    description: Is a generic error event returned when the we have an internal error
+    type: object
+    properties:
+      reason:
+        description: A human readable description used to define what error has occured
+        type: string
+      detail:
+        description: Additional details related to the error
+        type: string
+    required:
+      - reason
+
+  Object:
+    description: The definition of a object
+    type: object
+    properties:
+      name:
+        description: A globally unique human readible resource name
+        type: string
+      signature:
+        description: A cryptographic signature used to verify the request payload
+        type: string
+    required:
+      - name
+
+  Permission:
+    description: Is the definition for a permission on a repository
+    type: object
+    properties:
+      name:
+        description: The identifier for the identity applying the permission to
+        type: string
+      permission:
+        description: The level of access to be given to the identify (team, memeber or robot)
+        type: string
+        enum:
+          - admin
+          - none
+          - read
+          - write
+    required:
+      - name
+      - permission
+
+  RepositorySpec:
+    description: The definitions for a repository
+    type: object
+    properties:
+      id:
+        description: An internal identifier used to reference to the repository
+        type: string
+      description:
+        description: A description about what the image is used for
+        type: string
+      tags:
+        description: A collection of tags associated to the image
+        type: object
+        additionalProperties:
+          type: string
+      members:
+        description: A list of members whom has access to the repository
+        type: array
+        items:
+          "$ref": "#/definitions/Permission"
+      robots:
+        description: A list of robot accounts who access to the repository
+        type: array
+        items:
+          "$ref": "#/definitions/Permission"
+      visibility:
+        description: The visibility of the repository in the registry
+        type: string
+        enum:
+          - internal
+          - private
+          - public
+
+  Repository:
+    description: The resource definition for a repository in the registry
+    type: object
+    allOf:
+      - "$ref": "#/definitions/Object"
+    properties:
+      spec:
+        "$ref": "#/definitions/RepositorySpec"
+    required:
+      - spec
+
+  RepositoryList:
+    description: A list of repositories found
+    type: object
+    allOf:
+      - "$ref": "#/definitions/Object"
+    properties:
+      items:
+        type: array
+        items:
+          "$ref": "#/definitions/Repository"
+
+  RobotSpec:
+    description: The resource specification of a robot account
+    type: object
+    properties:
+      description:
+        description: A summary of what the robot account is for
+        type: string
+      tags:
+        description: A collection of tags associated to the robot account
+        type: object
+        additionalProperties:
+          type: string
+      token:
+        description: The token associated to the the robot account
+        type: string
+      username:
+        description: The username associated to the robot account
+        type: string
+      password:
+        description: The password associated to the robot account
+        type: string
+    required:
+      - description
+
+  Robot:
+    description: The resource definition for a robot account
+    type: object
+    allOf:
+      - "$ref": "#/definitions/Object"
+    properties:
+      spec:
+        "$ref": "#/definitions/RobotSpec"
+    required:
+      - spec
+
+  RobotList:
+    description: A list of robot accounts
+    type: object
+    allOf:
+      - "$ref": "#/definitions/Object"
+    properties:
+      items:
+        type: array
+        items:
+          "$ref": "#/definitions/Robot"
+
+  Principal:
+    type: string

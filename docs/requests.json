@@ -1,0 +1,18 @@
+{
+  "name": "ukhomeofficedigital/myrepo",
+  "spec": {
+    "members": [
+      {
+        "name": "rohithj",
+        "access": "readonly"
+      }
+    ],
+    "robots": [
+      {
+        "name": "myrobot",
+        "access": "write"
+      }
+    ],
+    "visibility": "private"
+  }
+}

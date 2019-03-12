@@ -1,0 +1,6 @@
+*.swp
+bin/
+release/
+pkg/quay/
+pkg/transport/models
+pkg/transport/restapi
