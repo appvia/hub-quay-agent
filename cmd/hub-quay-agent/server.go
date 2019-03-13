@@ -25,6 +25,7 @@ import (
 
 	"github.com/appvia/hub-quay-agent/pkg/server"
 	"github.com/appvia/hub-quay-agent/pkg/server/middleware/authinfo"
+	"github.com/appvia/hub-quay-agent/pkg/server/middleware/keyauth"
 	"github.com/appvia/hub-quay-agent/pkg/transport/restapi"
 	"github.com/appvia/hub-quay-agent/pkg/transport/restapi/operations"
 
@@ -42,7 +43,7 @@ func invokeServerAction(ctx *cli.Context) error {
 
 	// @step: create the agent service
 	svc, err := server.New(&server.Options{
-		AccessToken: ctx.String("auth-token"),
+		AccessToken: ctx.String("quay-api-token"),
 		HostnameAPI: ctx.String("quay-endpoint-url"),
 	})
 	if err != nil {
@@ -134,7 +135,7 @@ func invokeServerAction(ctx *cli.Context) error {
 		return operations.NewPostRobotsNamespaceNameOK().WithPayload(resp)
 	})
 
-	handler := alice.New(authinfo.New).Then(api.Serve(nil))
+	handler := alice.New(keyauth.New(ctx.String("auth-token")), authinfo.New).Then(api.Serve(nil))
 
 	s.SetHandler(handler)
 

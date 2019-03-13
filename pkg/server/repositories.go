@@ -76,8 +76,6 @@ func (s *serverImpl) Create(ctx context.Context, r *models.Repository) (*models.
 			"removing": removing,
 		}).Debug("adjusted robot permissions on repository")
 
-		fmt.Printf("REMOVING: %v\n", removing)
-
 		if err := s.Repositories().AddRobots(ctx, fullname, adding); err != nil {
 			return newError("adding robots", err).model()
 		}

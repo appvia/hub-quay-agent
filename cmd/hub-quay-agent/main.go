@@ -77,15 +77,20 @@ func main() {
 				EnvVar: "TLS_KEY",
 			},
 			cli.StringFlag{
+				Name:   "auth-token",
+				Usage:  "authentication token used to verifier the caller `TOKEN`",
+				EnvVar: "AUTH_TOKEN",
+			},
+			cli.StringFlag{
 				Name:   "quay-endpoint-url",
 				Usage:  "the url for the quay.io api `URL`",
 				Value:  "https://quay.io",
 				EnvVar: "QUAY_ENDPOINT_URL",
 			},
 			cli.StringFlag{
-				Name:   "auth-token",
+				Name:   "quay-api-token",
 				Usage:  "an authentication token used to permit api access `TOKEN`",
-				EnvVar: "AUTH_TOKEN",
+				EnvVar: "QUAY_API_TOKEN",
 			},
 		},
 	}
