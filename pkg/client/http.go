@@ -24,10 +24,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/http/httputil"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -80,25 +78,12 @@ func (c *clientImpl) Handle(ctx context.Context, method, uri string, payload, da
 
 		c.authinfo(ctx, request)
 
-		fields["payload"] = spew.Sdump(payload)
-
-		b, err := httputil.DumpRequest(request, true)
-		if err == nil {
-			fmt.Printf("REQUEST: %s\n", string(b))
-		}
-
 		// @step: perform the request
 		resp, err := c.hc.Do(request)
 		if err != nil {
 			return err
 		}
 		fields["code"] = resp.StatusCode
-
-		b, err = httputil.DumpResponse(resp, true)
-		if err == nil {
-			fmt.Printf("RESPONSE: %s\n", string(b))
-			fields["response"] = string(b)
-		}
 
 		// @step: decode the response if required and or apierror
 		if resp.StatusCode >= 200 && resp.StatusCode <= 299 {

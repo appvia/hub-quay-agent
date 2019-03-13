@@ -26,7 +26,7 @@ import (
 
 const (
 	// AuthInfoHeader is the passed authentication header
-	AuthInfoHeader = "X-AuthInfo"
+	AuthInfoHeader = "X-QUAY-API-TOKEN"
 )
 
 type authinfoImpl struct{}
