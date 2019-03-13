@@ -14,10 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+
 require 'json'
 require 'yaml'
 
-input = ARGF.read()
-json = JSON.load(input)
-yaml = YAML.dump(json)
-print yaml
+begin
+  print YAML.dump(JSON.load(ARGF.read()))
+rescue e
+  puts "[error] #{e}\n"
+end
