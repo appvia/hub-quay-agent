@@ -64,13 +64,7 @@ type Permission struct {
 	IsOrgMember bool   `json:"is_org_member"`
 	Role        string `json:"role"`
 	Name        string `json:"name"`
-	Avatar      struct {
-		Color string `json:"color"`
-		Kind  string `json:"kind"`
-		Hash  string `json:"hash"`
-		Name  string `json:"name"`
-	} `json:"avatar"`
-	IsRobot bool `json:"is_robot"`
+	IsRobot     bool   `json:"is_robot"`
 }
 
 // RepositoryList defined a list of repositories

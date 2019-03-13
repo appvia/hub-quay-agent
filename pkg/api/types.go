@@ -31,6 +31,8 @@ type Handler interface {
 	CreateRobot(context.Context, *models.Robot) (*models.Robot, *models.APIError)
 	// Delete is responsible for deleting a repo
 	Delete(context.Context, *models.Repository) *models.APIError
+	// DeleteRobot is responsible for deleting robot account
+	DeleteRobot(context.Context, string) *models.APIError
 	// Get is responsible for retrieving a repository
 	Get(context.Context, string) (*models.Repository, *models.APIError)
 	// GetRobot is responsible for retrieving a robot

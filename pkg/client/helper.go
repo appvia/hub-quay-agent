@@ -27,3 +27,19 @@ func parseRobotName(name string) (string, string) {
 
 	return "", name
 }
+
+func robotShortName(name string) string {
+	_, shortname := parseRobotName(name)
+
+	return shortname
+}
+
+func hasPermission(list []*Permission, perm *Permission) bool {
+	for _, x := range list {
+		if x.Name == perm.Name && x.Role == perm.Role {
+			return true
+		}
+	}
+
+	return false
+}

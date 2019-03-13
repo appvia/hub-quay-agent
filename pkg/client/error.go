@@ -31,5 +31,9 @@ func (a *Error) WithStatus(code int) *Error {
 
 // Error returns the string representation of the error
 func (a *Error) Error() string {
-	return a.ErrorMessage
+	if a.ErrorMessage != "" {
+		return a.ErrorMessage
+	}
+
+	return a.Message
 }

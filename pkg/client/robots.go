@@ -44,13 +44,13 @@ func (r *robotImpl) Create(ctx context.Context, robot *Robot) (*Robot, error) {
 		if err != nil {
 			return nil, err
 		}
+		// @note: updating the robot account description is not supported by quay.io
+		// it must be deleted and then recreate
 		if current.Description != robot.Description {
-			if err := r.Handle(ctx, http.MethodPut, uri, robot, &robot); err != nil {
-				return robot, err
-			}
+			return nil, errors.New("description field is immutable")
 		}
 
-		return robot, nil
+		return current, nil
 	}
 	resp := &Robot{Description: robot.Description}
 
@@ -75,7 +75,7 @@ func (r *robotImpl) Delete(ctx context.Context, fullname string) error {
 func (r *robotImpl) Has(ctx context.Context, name string) (bool, error) {
 	if _, err := r.Get(ctx, name); err != nil {
 		if aerr, ok := err.(*Error); ok {
-			if aerr.Status == http.StatusNotFound {
+			if aerr.Status == http.StatusNotFound || aerr.Status == http.StatusBadRequest {
 				return false, nil
 			}
 		}

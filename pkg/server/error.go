@@ -31,6 +31,10 @@ type apierror struct {
 	reason string
 }
 
+func (a *apierror) Error() string {
+	return a.reason
+}
+
 func newError(reason string, err error) *apierror {
 	a := &apierror{reason: fmt.Sprintf("failed: %s", reason)}
 	if err != nil {

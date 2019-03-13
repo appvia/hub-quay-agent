@@ -140,6 +140,19 @@ paths:
         default:
           "$ref": "#/responses/apierror"
 
+    delete:
+      summary: Deletes a robot account from the organization
+      description: |
+        Used to delete a robot account and all permissions from a robot account
+      parameters:
+        - "$ref": "#/parameters/namespace"
+        - "$ref": "#/parameters/name"
+      responses:
+        '200':
+          "$ref": "#/responses/robot"
+        default:
+          "$ref": "#/responses/apierror"
+
   "/registry/{namespace}":
     get:
       summary: Retrieves a list of respositories witin the registry
@@ -172,7 +185,7 @@ paths:
     post:
       summary: Create a new repository within Quay
       description: |
-        Used to create a new repository and registry
+        Used to create a new repository or update a repository in the registry
       parameters:
         - "$ref": "#/parameters/namespace"
         - "$ref": "#/parameters/name"
@@ -193,7 +206,7 @@ paths:
         - "$ref": "#/parameters/repository"
       responses:
         '200':
-          "$ref": "#/responses/repository"
+          description: Successfully deleted the repository from the organization
         default:
           "$ref": "#/responses/apierror"
 
@@ -247,9 +260,6 @@ definitions:
     description: The definitions for a repository
     type: object
     properties:
-      id:
-        description: An internal identifier used to reference to the repository
-        type: string
       description:
         description: A description about what the image is used for
         type: string
@@ -268,6 +278,9 @@ definitions:
         type: array
         items:
           "$ref": "#/definitions/Permission"
+      url:
+        description: The docker pull url for this image
+        type: string
       visibility:
         description: The visibility of the repository in the registry
         type: string
@@ -275,6 +288,8 @@ definitions:
           - internal
           - private
           - public
+    required:
+      - description
 
   Repository:
     description: The resource definition for a repository in the registry

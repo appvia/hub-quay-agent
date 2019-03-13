@@ -19,7 +19,6 @@ package client
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 )
@@ -55,6 +54,8 @@ func (r *repositoryImpl) Create(ctx context.Context, repo *NewRepo) error {
 				return fmt.Errorf("unable to update visibility: %s", err)
 			}
 		}
+
+		return nil
 	}
 
 	return r.Handle(ctx, http.MethodPost, "/repository", &repo, nil)
@@ -71,6 +72,44 @@ func (r *repositoryImpl) Delete(ctx context.Context, name string) error {
 	uri := fmt.Sprintf("/repository/%s", name)
 
 	return r.Handle(ctx, http.MethodDelete, uri, nil, nil)
+}
+
+// DeleteUsers removes a user permission
+func (r *repositoryImpl) DeleteUsers(ctx context.Context, name string, perms []*Permission) error {
+	current, err := r.Repositories().ListUsers(ctx, name)
+	if err != nil {
+		return err
+	}
+	for _, x := range perms {
+		if hasPermission(current, x) {
+			uri := fmt.Sprintf("/repository/%s/permissions/user/%s", name, x.Name)
+
+			if err := r.Handle(ctx, http.MethodDelete, uri, nil, nil); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// DeleteRobots removes a user permission
+func (r *repositoryImpl) DeleteRobots(ctx context.Context, name string, perms []*Permission) error {
+	current, err := r.Repositories().ListRobots(ctx, name)
+	if err != nil {
+		return err
+	}
+	for _, x := range perms {
+		if hasPermission(current, x) {
+			uri := fmt.Sprintf("/repository/%s/permissions/user/%s", name, x.Name)
+
+			if err := r.Handle(ctx, http.MethodDelete, uri, nil, nil); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 // Has checks if a repository exists
@@ -97,26 +136,36 @@ func (r *repositoryImpl) Get(ctx context.Context, name string) (*Repository, err
 	return repo, r.Handle(ctx, http.MethodGet, uri, nil, repo)
 }
 
-// AddUser is responsible for adding a user
-func (r *repositoryImpl) AddUser(ctx context.Context, repo, member, role string) error {
-	var userRole struct {
-		Role string `json:"role"`
+// AddUsers is responsible for adding a user
+func (r *repositoryImpl) AddUsers(ctx context.Context, name string, members []*Permission) error {
+	current, err := r.ListUsers(ctx, name)
+	if err != nil {
+		return err
 	}
-	uri := fmt.Sprintf("/repository/%s/permissions/user/%s", repo, member)
+	for _, x := range members {
+		if !hasPermission(current, x) {
+			uri := fmt.Sprintf("/repository/%s/permissions/user/%s", name, x.Name)
+			if err := r.Handle(ctx, http.MethodPut, uri, x, nil); err != nil {
+				return err
+			}
+		}
+	}
 
-	return r.Handle(ctx, http.MethodPut, uri, &userRole, nil)
+	return nil
 }
 
-// AddRobot is responsible for adding a robot
-func (r *repositoryImpl) AddRobot(ctx context.Context, repoName, robotName, roleName string) error {
-	// @step: ensure the robot user exists
-	if found, err := r.Robots().Has(ctx, robotName); err != nil {
-		return err
-	} else if !found {
-		return errors.New("robot user not found")
+// AddRobots is responsible for adding a robot
+func (r *repositoryImpl) AddRobots(ctx context.Context, name string, robots []*Permission) error {
+	for _, x := range robots {
+		// @step: ensure the robot user exists
+		if found, err := r.Robots().Has(ctx, x.Name); err != nil {
+			return err
+		} else if !found {
+			return fmt.Errorf("robot user: %s not found", x.Name)
+		}
 	}
 
-	return r.AddUser(ctx, repoName, robotName, roleName)
+	return r.AddUsers(ctx, name, robots)
 }
 
 func (r *repositoryImpl) List(ctx context.Context, namespace string) (*RepositoryList, error) {

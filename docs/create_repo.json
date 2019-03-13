@@ -1,0 +1,14 @@
+{
+  "name": "gambol99_org/myrepo",
+  "spec": {
+    "description": "a repo for something",
+    "members": [
+      {
+        "name": "gambol99",
+        "permission": "read"
+      }
+    ],
+    "robots": [],
+    "visibility": "public"
+  }
+}

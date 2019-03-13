@@ -42,7 +42,7 @@ func invokeServerAction(ctx *cli.Context) error {
 
 	// @step: create the agent service
 	svc, err := server.New(&server.Options{
-		AccessToken: cts.String("auth-token"),
+		AccessToken: ctx.String("auth-token"),
 		HostnameAPI: ctx.String("quay-endpoint-url"),
 	})
 	if err != nil {
@@ -79,6 +79,13 @@ func invokeServerAction(ctx *cli.Context) error {
 		return operations.NewDeleteRegistryNamespaceNameOK()
 	})
 
+	api.DeleteRobotsNamespaceNameHandler = operations.DeleteRobotsNamespaceNameHandlerFunc(func(params operations.DeleteRobotsNamespaceNameParams) middleware.Responder {
+		if err := svc.DeleteRobot(params.HTTPRequest.Context(), params.Namespace+"+"+params.Name); err != nil {
+			return operations.NewDeleteRobotsNamespaceNameDefault(http.StatusServiceUnavailable).WithPayload(err)
+		}
+		return operations.NewDeleteRobotsNamespaceNameOK()
+	})
+
 	api.GetRegistryNamespaceHandler = operations.GetRegistryNamespaceHandlerFunc(func(params operations.GetRegistryNamespaceParams) middleware.Responder {
 		resp, err := svc.List(params.HTTPRequest.Context(), params.Namespace)
 		if err != nil {
@@ -104,7 +111,7 @@ func invokeServerAction(ctx *cli.Context) error {
 	})
 
 	api.GetRobotsNamespaceNameHandler = operations.GetRobotsNamespaceNameHandlerFunc(func(params operations.GetRobotsNamespaceNameParams) middleware.Responder {
-		resp, err := svc.GetRobot(params.HTTPRequest.Context(), params.Namespace+"/"+params.Name)
+		resp, err := svc.GetRobot(params.HTTPRequest.Context(), params.Namespace+"+"+params.Name)
 		if err != nil {
 			return operations.NewGetRobotsNamespaceDefault(http.StatusServiceUnavailable).WithPayload(err)
 		}

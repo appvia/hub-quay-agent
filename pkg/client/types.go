@@ -57,10 +57,14 @@ type Repositories interface {
 	ListUsers(context.Context, string) ([]*Permission, error)
 	// ListRobots is responsible for getting the robot permissions
 	ListRobots(context.Context, string) ([]*Permission, error)
-	// AddUser is responsible for adding a user
-	AddUser(context.Context, string, string, string) error
-	// AddRobot is responsible for adding a robot
-	AddRobot(context.Context, string, string, string) error
+	// AddUsers is responsible for adding a user
+	AddUsers(context.Context, string, []*Permission) error
+	// DeleteUser removes a user permission
+	DeleteUsers(context.Context, string, []*Permission) error
+	// AddRobots is responsible for adding a robot
+	AddRobots(context.Context, string, []*Permission) error
+	// DeleteRobots removes a user permission
+	DeleteRobots(context.Context, string, []*Permission) error
 }
 
 // Robots is the contract to the robots

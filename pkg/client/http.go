@@ -109,7 +109,7 @@ func (c *clientImpl) Handle(ctx context.Context, method, uri string, payload, da
 		}
 
 		if resp.Body == nil {
-			return &Error{ErrorMessage: err.Error(), Status: resp.StatusCode}
+			return &Error{ErrorMessage: "invalid api response", Status: resp.StatusCode}
 		}
 
 		apierror := &Error{}
@@ -117,6 +117,7 @@ func (c *clientImpl) Handle(ctx context.Context, method, uri string, payload, da
 		if err := decode(resp.Body, apierror); err != nil {
 			return &Error{ErrorMessage: err.Error(), Status: resp.StatusCode}
 		}
+		apierror.Status = resp.StatusCode
 
 		return apierror
 	}()
