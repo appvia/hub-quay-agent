@@ -1,6 +1,7 @@
 *.swp
 bin/
 release/
+vendor/
 pkg/quay/
 pkg/transport/models
 pkg/transport/restapi

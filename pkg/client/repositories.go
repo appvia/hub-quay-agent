@@ -41,14 +41,14 @@ func (r *repositoryImpl) Create(ctx context.Context, repo *NewRepo) error {
 		}
 
 		if current.Description != repo.Description {
-			uri := fmt.Sprintf("/repository/%s/%s", repo.Namespace, repo.Name)
+			uri := fmt.Sprintf("/repository/%s/%s", repo.Namespace, repo.Repository)
 
 			if err := r.Handle(ctx, http.MethodPut, uri, repo, nil); err != nil {
 				return fmt.Errorf("unable to update desription: %s", err)
 			}
 		}
 		if current.IsPublic && repo.Visibility == "private" || !current.IsPublic && repo.Visibility == "public" {
-			uri := fmt.Sprintf("/repository/%s/%s/changevisibility", repo.Namespace, repo.Name)
+			uri := fmt.Sprintf("/repository/%s/%s/changevisibility", repo.Namespace, repo.Repository)
 
 			if err := r.Handle(ctx, http.MethodPost, uri, repo, nil); err != nil {
 				return fmt.Errorf("unable to update visibility: %s", err)
