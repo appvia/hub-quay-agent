@@ -25,6 +25,10 @@ import (
 	"github.com/urfave/cli"
 )
 
+var (
+	release = "v0.0.1"
+)
+
 func init() {
 	log.SetLevel(log.DebugLevel)
 	log.SetFormatter(&log.JSONFormatter{})
@@ -36,7 +40,7 @@ func main() {
 		Author:  "Rohith Jayawardene",
 		Email:   "gambol99@gmail.com",
 		Usage:   "A backend agent used to provision resources within quay.io",
-		Version: "v0.0.1",
+		Version: release,
 
 		OnUsageError: func(context *cli.Context, err error, _ bool) error {
 			fmt.Fprintf(os.Stderr, "[error] invalid options %s\n", err)
