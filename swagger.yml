@@ -15,7 +15,7 @@ securityDefinitions:
     type: apiKey
     in: header
     name: x-token
-basePath: "/api/hub.appvia.io/v1beta"
+basePath: "/api/v1beta"
 consumes:
   - application/json
 produces:
@@ -203,7 +203,6 @@ paths:
       parameters:
         - "$ref": "#/parameters/namespace"
         - "$ref": "#/parameters/name"
-        - "$ref": "#/parameters/repository"
       responses:
         '200':
           description: Successfully deleted the repository from the organization
@@ -231,11 +230,15 @@ definitions:
       name:
         description: A globally unique human readible resource name
         type: string
+      namespace:
+        description: A namespace for the resource, which in this case maps on the organization
+        type: string
       signature:
         description: A cryptographic signature used to verify the request payload
         type: string
     required:
       - name
+      - namespace
 
   Permission:
     description: Is the definition for a permission on a repository

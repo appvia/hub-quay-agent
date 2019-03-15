@@ -1,5 +1,6 @@
 {
-  "name": "gambol99_org+robot_user",
+  "name": "robot_user",
+  "namespace": "gambol99_org",
   "spec": {
     "description": "A robot user for build or a project - adding"
   }

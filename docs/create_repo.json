@@ -1,5 +1,6 @@
 {
-  "name": "gambol99_org/myrepo",
+  "name": "test_repo",
+  "namespace": "gambol99_org",
   "spec": {
     "description": "a repo for something",
     "members": [
@@ -8,7 +9,12 @@
         "permission": "read"
       }
     ],
-    "robots": [],
+    "robots": [
+      {
+        "name": "gambol99_org+robot_user",
+        "permission": "write"
+      }
+    ],
     "visibility": "public"
   }
 }

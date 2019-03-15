@@ -29,19 +29,19 @@ import (
 
 // Create is responsible for creating a repo
 func (s *serverImpl) Create(ctx context.Context, r *models.Repository) (*models.Repository, *models.APIError) {
-	namespace, name := ParseName(sv(r.Name))
-	fullname := sv(r.Name)
 
 	err := func() *models.APIError {
 		// @note: the repository creation is idempotent
 		if err := s.Repositories().Create(ctx, &client.NewRepo{
 			Description: sv(r.Spec.Description),
-			Namespace:   namespace,
-			Repository:  name,
+			Namespace:   sv(r.Namespace),
+			Repository:  sv(r.Name),
 			Visibility:  r.Spec.Visibility,
 		}); err != nil {
 			return newError("creating repository", err).model()
 		}
+
+		fullname := fmt.Sprintf("%s/%s", sv(r.Namespace), sv(r.Name))
 
 		// @step: ensure the users are there
 		members, err := s.Repositories().ListUsers(ctx, fullname)
@@ -88,8 +88,8 @@ func (s *serverImpl) Create(ctx context.Context, r *models.Repository) (*models.
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":     err.Reason,
-			"name":      name,
-			"namespace": namespace,
+			"name":      sv(r.Name),
+			"namespace": sv(r.Namespace),
 		}).Error("creating or updating repository")
 
 		return nil, err
@@ -104,8 +104,8 @@ func (s *serverImpl) Create(ctx context.Context, r *models.Repository) (*models.
 }
 
 // Get is responsible for getting a repository
-func (s *serverImpl) Get(ctx context.Context, fullname string) (*models.Repository, *models.APIError) {
-	namespace, name := ParseName(fullname)
+func (s *serverImpl) Get(ctx context.Context, namespace, name string) (*models.Repository, *models.APIError) {
+	fullname := fmt.Sprintf("%s/%s", namespace, name)
 
 	// @step: check if the resource exists
 	if found, err := s.Repositories().Has(ctx, fullname); err != nil {
@@ -169,16 +169,16 @@ func (s *serverImpl) Get(ctx context.Context, fullname string) (*models.Reposito
 }
 
 // Delete is responsible for deleting a repo
-func (s *serverImpl) Delete(ctx context.Context, repo *models.Repository) *models.APIError {
-	namespace, name := ParseName(sv(repo.Name))
-
+func (s *serverImpl) Delete(ctx context.Context, namespace, name string) *models.APIError {
 	log.WithFields(log.Fields{
 		"name":      name,
 		"namespace": namespace,
 	}).Debug("attempting to delete the repository")
 
+	fullname := fmt.Sprintf("%s/%s", namespace, name)
+
 	// @note: the delete the idempotent, so it's fine to call without checking
-	if err := s.Repositories().Delete(ctx, name); err != nil {
+	if err := s.Repositories().Delete(ctx, fullname); err != nil {
 		log.WithFields(log.Fields{
 			"error":     err.Error(),
 			"name":      name,
@@ -205,11 +205,11 @@ func (s *serverImpl) List(ctx context.Context, namespace string) (*models.Reposi
 
 	list := &models.RepositoryList{
 		Object: models.Object{
-			Name: sp(namespace),
+			Namespace: sp(namespace),
 		},
 	}
 	for _, x := range repos.Repositories {
-		repo, err := s.Get(ctx, fmt.Sprintf("%s/%s", x.Namespace, x.Name))
+		repo, err := s.Get(ctx, x.Namespace, x.Name)
 		if err != nil {
 			return nil, err
 		}
