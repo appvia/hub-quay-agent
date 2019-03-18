@@ -66,7 +66,7 @@ authors:
 
 dep-install:
 	@echo "--> Installing dependencies"
-	@dep ensure
+	@dep ensure -v
 
 deps:
 	@echo "--> Installing build dependencies"
@@ -131,7 +131,7 @@ go-swagger:
 	@echo "--> Installing go-swagger tools"
 	@swagger version >/dev/null 2>&1; if [ $$? -ne 0 ]; then \
 		echo "--> Installing the go-swagger tools"; \
-		go install github.com/go-swagger/go-swagger/cmd/swagger; \
+		go get -u github.com/go-swagger/go-swagger/cmd/swagger; \
 	fi
 
 lint:
@@ -156,7 +156,7 @@ spelling:
 test:
 	@echo "--> Running the tests"
 	@if [ ! -d "vendor" ]; then \
-		make dep-install; \
+		make deps; \
   fi
 	@go test -v $(PACKAGES)
 	@$(MAKE) golang
