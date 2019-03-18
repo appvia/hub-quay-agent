@@ -110,7 +110,7 @@ api-validate: golang go-swagger
 	@echo "--> Validated the API scheme"
 	swagger validate $(SWAGGER_API)
 
-api:
+api: clean-api
 	@echo "--> Generate the HTTP API"
 	@mkdir -p pkg/transport/restapi
 	swagger generate server \
@@ -153,15 +153,13 @@ spelling:
 	@misspell -error *.go
 	@misspell -error *.md
 
-test:
+test: api
 	@echo "--> Running the tests"
 	@if [ ! -d "vendor" ]; then \
 		make deps; \
   fi
 	@go test -v $(PACKAGES)
 	@$(MAKE) golang
-	@$(MAKE) clean-api
-	@$(MAKE) api
 	@$(MAKE) gofmt
 	@$(MAKE) lint
 	@$(MAKE) spelling
