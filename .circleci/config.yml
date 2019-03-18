@@ -14,14 +14,14 @@ jobs:
           paths:
             - ./vendor
           key: deps-{{ checksum "Gopkg.lock" }}
+      - run: make go-swagger
+      - run: make deps
       - run: make test
     working_directory: /go/src/github.com/appvia/hub-quay-agent
 
   build:
     docker:
       - image: circleci/golang:1.11
-    requires:
-      - test
     steps:
       - checkout
       - run: make build
@@ -33,3 +33,5 @@ workflows:
     jobs:
     - test
     - build
+      requires:
+        - test
