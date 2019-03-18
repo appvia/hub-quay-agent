@@ -66,7 +66,7 @@ authors:
 
 dep-install:
 	@echo "--> Installing dependencies"
-	@dep ensure
+	@dep ensure -v
 
 deps:
 	@echo "--> Installing build dependencies"
@@ -156,10 +156,12 @@ spelling:
 test:
 	@echo "--> Running the tests"
 	@if [ ! -d "vendor" ]; then \
-		make dep-install; \
+		make deps; \
   fi
 	@go test -v $(PACKAGES)
 	@$(MAKE) golang
+	@$(MAKE) clean-api
+	@$(MAKE) api
 	@$(MAKE) gofmt
 	@$(MAKE) lint
 	@$(MAKE) spelling
