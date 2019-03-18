@@ -110,7 +110,7 @@ api-validate: golang go-swagger
 	@echo "--> Validated the API scheme"
 	swagger validate $(SWAGGER_API)
 
-api: clean-api
+api:
 	@echo "--> Generate the HTTP API"
 	@mkdir -p pkg/transport/restapi
 	swagger generate server \
@@ -131,7 +131,7 @@ go-swagger:
 	@echo "--> Installing go-swagger tools"
 	@swagger version >/dev/null 2>&1; if [ $$? -ne 0 ]; then \
 		echo "--> Installing the go-swagger tools"; \
-		go install github.com/go-swagger/go-swagger/cmd/swagger; \
+		go get -u github.com/go-swagger/go-swagger/cmd/swagger; \
 	fi
 
 lint:
@@ -153,7 +153,7 @@ spelling:
 	@misspell -error *.go
 	@misspell -error *.md
 
-test: api
+test:
 	@echo "--> Running the tests"
 	@if [ ! -d "vendor" ]; then \
 		make deps; \
