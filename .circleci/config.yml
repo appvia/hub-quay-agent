@@ -2,7 +2,8 @@
 version: 2
 jobs:
   test:
-    parallelism: 1
+    docker:
+      - image: circleci/golang:1.11
     steps:
       - checkout
       - restore_cache:
@@ -14,9 +15,21 @@ jobs:
             - ./vendor
           key: deps-{{ checksum "Gopkg.lock" }}
       - run: make test
+    working_directory: /go/src/github.com/appvia/hub-quay-agent
 
   build:
-    parallelism: 1
+    docker:
+      - image: circleci/golang:1.11
+    requires:
+      - test
     steps:
       - checkout
       - run: make build
+    working_directory: /go/src/github.com/appvia/hub-quay-agent
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+    - test
+    - build
