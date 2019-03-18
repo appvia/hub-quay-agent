@@ -31,8 +31,8 @@ func filterRobotName(name string) string {
 	return name
 }
 
-// ParseName extracts the namespace and image
-func ParseName(name string) (string, string) {
+// parseName extracts the namespace and image
+func parseName(name string) (string, string) {
 	items := strings.Split(name, "/")
 	if len(items) == 2 {
 		return items[0], items[1]

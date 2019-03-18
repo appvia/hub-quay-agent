@@ -19,6 +19,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/appvia/hub-quay-agent/pkg/client"
 	"github.com/appvia/hub-quay-agent/pkg/transport/models"
@@ -29,22 +30,22 @@ import (
 // CreateRobot creates and returns a robot account for us - note it does not do permissions, that is done
 // at the repository level
 func (s *serverImpl) CreateRobot(ctx context.Context, robot *models.Robot) (*models.Robot, *models.APIError) {
-	namespace, name := ParseName(sv(robot.Name))
-
 	log.WithFields(log.Fields{
-		"name":      name,
-		"namespace": namespace,
+		"name":      robot.Name,
+		"namespace": robot.Namespace,
 	}).Debug("attempting to create or update robot token")
+
+	fullname := fmt.Sprintf("%s+%s", sv(robot.Namespace), sv(robot.Name))
 
 	r, err := s.Robots().Create(ctx, &client.Robot{
 		Description: sv(robot.Spec.Description),
-		Name:        sv(robot.Name),
+		Name:        fullname,
 	})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":     err.Error(),
-			"name":      name,
-			"namespace": namespace,
+			"name":      robot.Name,
+			"namespace": robot.Namespace,
 		}).Error("creating or updating robot account")
 
 		return nil, newError("creating or update robot account", err).model()
@@ -55,7 +56,9 @@ func (s *serverImpl) CreateRobot(ctx context.Context, robot *models.Robot) (*mod
 }
 
 // DeleteRobot is responsible for deleting the robot accounts
-func (s *serverImpl) DeleteRobot(ctx context.Context, fullname string) *models.APIError {
+func (s *serverImpl) DeleteRobot(ctx context.Context, namespace, name string) *models.APIError {
+	fullname := fmt.Sprintf("%s+%s", namespace, name)
+
 	if found, err := s.Robots().Has(ctx, fullname); err != nil {
 		return newError("checking robot exists", err).model()
 	} else if !found {
@@ -75,13 +78,14 @@ func (s *serverImpl) DeleteRobot(ctx context.Context, fullname string) *models.A
 }
 
 // GetRobot retrieves the robot account if any
-func (s *serverImpl) GetRobot(ctx context.Context, fullname string) (*models.Robot, *models.APIError) {
+func (s *serverImpl) GetRobot(ctx context.Context, namespace, name string) (*models.Robot, *models.APIError) {
+	fullname := fmt.Sprintf("%s+%s", namespace, name)
+
 	if found, err := s.Robots().Has(ctx, fullname); err != nil {
 		return nil, newError("checking robot exists", err).model()
 	} else if !found {
 		return nil, newError("resource does not exist", nil).model()
 	}
-	robot := &models.Robot{Object: models.Object{Name: sp(fullname)}}
 
 	r, err := s.Robots().Get(ctx, fullname)
 	if err != nil {
@@ -92,12 +96,17 @@ func (s *serverImpl) GetRobot(ctx context.Context, fullname string) (*models.Rob
 
 		return nil, newError("retrieving robot account", err).model()
 	}
-	robot.Spec = &models.RobotSpec{
-		Description: sp(r.Description),
-		Token:       r.Token,
-	}
 
-	return robot, nil
+	return &models.Robot{
+		Object: models.Object{
+			Name:      sp(name),
+			Namespace: sp(namespace),
+		},
+		Spec: &models.RobotSpec{
+			Description: sp(r.Description),
+			Token:       r.Token,
+		},
+	}, nil
 }
 
 // ListRobots is responsible for listing all the robots
@@ -113,13 +122,16 @@ func (s *serverImpl) ListRobots(ctx context.Context, namespace string) (*models.
 	}
 
 	list := &models.RobotList{
-		Object: models.Object{Name: sp(namespace)},
+		Object: models.Object{Namespace: sp(namespace)},
 	}
 
 	for _, x := range robots.Robots {
+		ns, n := parseName(x.Name)
+
 		list.Items = append(list.Items, &models.Robot{
 			Object: models.Object{
-				Name: sp(x.Name),
+				Name:      sp(n),
+				Namespace: sp(ns),
 			},
 			Spec: &models.RobotSpec{
 				Description: sp(x.Description),

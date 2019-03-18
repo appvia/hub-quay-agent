@@ -74,14 +74,14 @@ func invokeServerAction(ctx *cli.Context) error {
 	defer s.Shutdown()
 
 	api.DeleteRegistryNamespaceNameHandler = operations.DeleteRegistryNamespaceNameHandlerFunc(func(params operations.DeleteRegistryNamespaceNameParams) middleware.Responder {
-		if err := svc.Delete(params.HTTPRequest.Context(), params.Repository); err != nil {
+		if err := svc.Delete(params.HTTPRequest.Context(), params.Namespace, params.Name); err != nil {
 			return operations.NewDeleteRegistryNamespaceNameDefault(http.StatusServiceUnavailable).WithPayload(err)
 		}
 		return operations.NewDeleteRegistryNamespaceNameOK()
 	})
 
 	api.DeleteRobotsNamespaceNameHandler = operations.DeleteRobotsNamespaceNameHandlerFunc(func(params operations.DeleteRobotsNamespaceNameParams) middleware.Responder {
-		if err := svc.DeleteRobot(params.HTTPRequest.Context(), params.Namespace+"+"+params.Name); err != nil {
+		if err := svc.DeleteRobot(params.HTTPRequest.Context(), params.Namespace, params.Name); err != nil {
 			return operations.NewDeleteRobotsNamespaceNameDefault(http.StatusServiceUnavailable).WithPayload(err)
 		}
 		return operations.NewDeleteRobotsNamespaceNameOK()
@@ -96,7 +96,7 @@ func invokeServerAction(ctx *cli.Context) error {
 	})
 
 	api.GetRegistryNamespaceNameHandler = operations.GetRegistryNamespaceNameHandlerFunc(func(params operations.GetRegistryNamespaceNameParams) middleware.Responder {
-		resp, err := svc.Get(params.HTTPRequest.Context(), params.Namespace+"/"+params.Name)
+		resp, err := svc.Get(params.HTTPRequest.Context(), params.Namespace, params.Name)
 		if err != nil {
 			return operations.NewGetRegistryNamespaceNameDefault(http.StatusServiceUnavailable).WithPayload(err)
 		}
@@ -112,7 +112,7 @@ func invokeServerAction(ctx *cli.Context) error {
 	})
 
 	api.GetRobotsNamespaceNameHandler = operations.GetRobotsNamespaceNameHandlerFunc(func(params operations.GetRobotsNamespaceNameParams) middleware.Responder {
-		resp, err := svc.GetRobot(params.HTTPRequest.Context(), params.Namespace+"+"+params.Name)
+		resp, err := svc.GetRobot(params.HTTPRequest.Context(), params.Namespace, params.Name)
 		if err != nil {
 			return operations.NewGetRobotsNamespaceDefault(http.StatusServiceUnavailable).WithPayload(err)
 		}
