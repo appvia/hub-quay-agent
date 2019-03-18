@@ -1,0 +1,22 @@
+---
+version: 2
+jobs:
+  test:
+    parallelism: 1
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - deps-{{ checksum "Gopkg.lock" }}
+          - deps-
+      - save_cache:
+          paths:
+            - ./vendor
+          key: deps-{{ checksum "Gopkg.lock" }}
+      - run: make test
+
+  build:
+    parallelism: 1
+    steps:
+      - checkout
+      - run: make build
