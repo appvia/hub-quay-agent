@@ -123,6 +123,7 @@ func (s *serverImpl) ListRobots(ctx context.Context, namespace string) (*models.
 
 	list := &models.RobotList{
 		Object: models.Object{Namespace: sp(namespace)},
+		Items:  make([]*models.Robot, 0),
 	}
 
 	for _, x := range robots.Robots {
