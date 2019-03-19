@@ -1,6 +1,6 @@
 {
   "name": "test_repo",
-  "namespace": "gambol99_org",
+  "namespace": "appvia_test",
   "spec": {
     "description": "a repo for something",
     "members": [
@@ -11,7 +11,7 @@
     ],
     "robots": [
       {
-        "name": "gambol99_org+robot_user",
+        "name": "appvia_test+robot_user",
         "permission": "write"
       }
     ],
