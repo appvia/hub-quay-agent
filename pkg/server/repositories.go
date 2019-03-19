@@ -114,7 +114,12 @@ func (s *serverImpl) Get(ctx context.Context, namespace, name string) (*models.R
 		return nil, newError("resource does not exist", nil).model()
 	}
 
-	repo := &models.Repository{Object: models.Object{Name: sp(fullname)}}
+	repo := &models.Repository{
+		Object: models.Object{
+			Name:      sp(name),
+			Namespace: sp(namespace),
+		},
+	}
 
 	reason, err := func() (string, error) {
 		r, err := s.Repositories().Get(ctx, fullname)
