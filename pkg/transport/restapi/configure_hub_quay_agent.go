@@ -73,11 +73,11 @@ func configureAPI(api *operations.HubQuayAgentAPI) http.Handler {
 	api.GetRobotsNamespaceNameHandler = operations.GetRobotsNamespaceNameHandlerFunc(func(params operations.GetRobotsNamespaceNameParams) middleware.Responder {
 		return middleware.NotImplemented("operation .GetRobotsNamespaceName has not yet been implemented")
 	})
-	api.PostRegistryNamespaceNameHandler = operations.PostRegistryNamespaceNameHandlerFunc(func(params operations.PostRegistryNamespaceNameParams) middleware.Responder {
-		return middleware.NotImplemented("operation .PostRegistryNamespaceName has not yet been implemented")
+	api.PutRegistryNamespaceNameHandler = operations.PutRegistryNamespaceNameHandlerFunc(func(params operations.PutRegistryNamespaceNameParams) middleware.Responder {
+		return middleware.NotImplemented("operation .PutRegistryNamespaceName has not yet been implemented")
 	})
-	api.PostRobotsNamespaceNameHandler = operations.PostRobotsNamespaceNameHandlerFunc(func(params operations.PostRobotsNamespaceNameParams) middleware.Responder {
-		return middleware.NotImplemented("operation .PostRobotsNamespaceName has not yet been implemented")
+	api.PutRobotsNamespaceNameHandler = operations.PutRobotsNamespaceNameHandlerFunc(func(params operations.PutRobotsNamespaceNameParams) middleware.Responder {
+		return middleware.NotImplemented("operation .PutRobotsNamespaceName has not yet been implemented")
 	})
 
 	api.ServerShutdown = func() {}

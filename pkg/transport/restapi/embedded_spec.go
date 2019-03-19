@@ -118,7 +118,7 @@ func init() {
           }
         }
       },
-      "post": {
+      "put": {
         "description": "Used to create a new repository or update a repository in the registry\n",
         "summary": "Create a new repository within Quay",
         "parameters": [
@@ -205,7 +205,7 @@ func init() {
           }
         }
       },
-      "post": {
+      "put": {
         "description": "Used to retrieve a list of robot accounts and the permissions they\nhave on the repositories\n",
         "summary": "Retrieves a list of robot accounts from within the registry",
         "parameters": [
@@ -661,7 +661,7 @@ func init() {
           }
         }
       },
-      "post": {
+      "put": {
         "description": "Used to create a new repository or update a repository in the registry\n",
         "summary": "Create a new repository within Quay",
         "parameters": [
@@ -806,7 +806,7 @@ func init() {
           }
         }
       },
-      "post": {
+      "put": {
         "description": "Used to retrieve a list of robot accounts and the permissions they\nhave on the repositories\n",
         "summary": "Retrieves a list of robot accounts from within the registry",
         "parameters": [

@@ -78,11 +78,11 @@ func NewHubQuayAgentAPI(spec *loads.Document) *HubQuayAgentAPI {
 		GetRobotsNamespaceNameHandler: GetRobotsNamespaceNameHandlerFunc(func(params GetRobotsNamespaceNameParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetRobotsNamespaceName has not yet been implemented")
 		}),
-		PostRegistryNamespaceNameHandler: PostRegistryNamespaceNameHandlerFunc(func(params PostRegistryNamespaceNameParams) middleware.Responder {
-			return middleware.NotImplemented("operation PostRegistryNamespaceName has not yet been implemented")
+		PutRegistryNamespaceNameHandler: PutRegistryNamespaceNameHandlerFunc(func(params PutRegistryNamespaceNameParams) middleware.Responder {
+			return middleware.NotImplemented("operation PutRegistryNamespaceName has not yet been implemented")
 		}),
-		PostRobotsNamespaceNameHandler: PostRobotsNamespaceNameHandlerFunc(func(params PostRobotsNamespaceNameParams) middleware.Responder {
-			return middleware.NotImplemented("operation PostRobotsNamespaceName has not yet been implemented")
+		PutRobotsNamespaceNameHandler: PutRobotsNamespaceNameHandlerFunc(func(params PutRobotsNamespaceNameParams) middleware.Responder {
+			return middleware.NotImplemented("operation PutRobotsNamespaceName has not yet been implemented")
 		}),
 	}
 }
@@ -129,10 +129,10 @@ type HubQuayAgentAPI struct {
 	GetRobotsNamespaceHandler GetRobotsNamespaceHandler
 	// GetRobotsNamespaceNameHandler sets the operation handler for the get robots namespace name operation
 	GetRobotsNamespaceNameHandler GetRobotsNamespaceNameHandler
-	// PostRegistryNamespaceNameHandler sets the operation handler for the post registry namespace name operation
-	PostRegistryNamespaceNameHandler PostRegistryNamespaceNameHandler
-	// PostRobotsNamespaceNameHandler sets the operation handler for the post robots namespace name operation
-	PostRobotsNamespaceNameHandler PostRobotsNamespaceNameHandler
+	// PutRegistryNamespaceNameHandler sets the operation handler for the put registry namespace name operation
+	PutRegistryNamespaceNameHandler PutRegistryNamespaceNameHandler
+	// PutRobotsNamespaceNameHandler sets the operation handler for the put robots namespace name operation
+	PutRobotsNamespaceNameHandler PutRobotsNamespaceNameHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -224,12 +224,12 @@ func (o *HubQuayAgentAPI) Validate() error {
 		unregistered = append(unregistered, "GetRobotsNamespaceNameHandler")
 	}
 
-	if o.PostRegistryNamespaceNameHandler == nil {
-		unregistered = append(unregistered, "PostRegistryNamespaceNameHandler")
+	if o.PutRegistryNamespaceNameHandler == nil {
+		unregistered = append(unregistered, "PutRegistryNamespaceNameHandler")
 	}
 
-	if o.PostRobotsNamespaceNameHandler == nil {
-		unregistered = append(unregistered, "PostRobotsNamespaceNameHandler")
+	if o.PutRobotsNamespaceNameHandler == nil {
+		unregistered = append(unregistered, "PutRobotsNamespaceNameHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -365,15 +365,15 @@ func (o *HubQuayAgentAPI) initHandlerCache() {
 	}
 	o.handlers["GET"]["/robots/{namespace}/{name}"] = NewGetRobotsNamespaceName(o.context, o.GetRobotsNamespaceNameHandler)
 
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/registry/{namespace}/{name}"] = NewPostRegistryNamespaceName(o.context, o.PostRegistryNamespaceNameHandler)
+	o.handlers["PUT"]["/registry/{namespace}/{name}"] = NewPutRegistryNamespaceName(o.context, o.PutRegistryNamespaceNameHandler)
 
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/robots/{namespace}/{name}"] = NewPostRobotsNamespaceName(o.context, o.PostRobotsNamespaceNameHandler)
+	o.handlers["PUT"]["/robots/{namespace}/{name}"] = NewPutRobotsNamespaceName(o.context, o.PutRobotsNamespaceNameHandler)
 
 }
 
