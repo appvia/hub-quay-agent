@@ -207,6 +207,7 @@ func (s *serverImpl) List(ctx context.Context, namespace string) (*models.Reposi
 		Object: models.Object{
 			Namespace: sp(namespace),
 		},
+		Items: make([]*models.Repository, 0),
 	}
 	for _, x := range repos.Repositories {
 		repo, err := s.Get(ctx, x.Namespace, x.Name)
