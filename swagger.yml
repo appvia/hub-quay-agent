@@ -125,7 +125,7 @@ paths:
         default:
           "$ref": "#/responses/apierror"
 
-    post:
+    put:
       summary: Retrieves a list of robot accounts from within the registry
       description: |
         Used to retrieve a list of robot accounts and the permissions they
@@ -182,7 +182,7 @@ paths:
         default:
           "$ref": "#/responses/apierror"
 
-    post:
+    put:
       summary: Create a new repository within Quay
       description: |
         Used to create a new repository or update a repository in the registry

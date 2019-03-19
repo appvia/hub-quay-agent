@@ -119,20 +119,20 @@ func invokeServerAction(ctx *cli.Context) error {
 		return operations.NewGetRobotsNamespaceNameOK().WithPayload(resp)
 	})
 
-	api.PostRegistryNamespaceNameHandler = operations.PostRegistryNamespaceNameHandlerFunc(func(params operations.PostRegistryNamespaceNameParams) middleware.Responder {
+	api.PutRegistryNamespaceNameHandler = operations.PutRegistryNamespaceNameHandlerFunc(func(params operations.PutRegistryNamespaceNameParams) middleware.Responder {
 		resp, err := svc.Create(params.HTTPRequest.Context(), params.Repository)
 		if err != nil {
 			return operations.NewDeleteRegistryNamespaceNameDefault(http.StatusInternalServerError).WithPayload(err)
 		}
-		return operations.NewPostRegistryNamespaceNameOK().WithPayload(resp)
+		return operations.NewPutRegistryNamespaceNameOK().WithPayload(resp)
 	})
 
-	api.PostRobotsNamespaceNameHandler = operations.PostRobotsNamespaceNameHandlerFunc(func(params operations.PostRobotsNamespaceNameParams) middleware.Responder {
+	api.PutRobotsNamespaceNameHandler = operations.PutRobotsNamespaceNameHandlerFunc(func(params operations.PutRobotsNamespaceNameParams) middleware.Responder {
 		resp, err := svc.CreateRobot(params.HTTPRequest.Context(), params.Robot)
 		if err != nil {
 			return operations.NewPostRobotsNamespaceNameDefault(http.StatusInternalServerError).WithPayload(err)
 		}
-		return operations.NewPostRobotsNamespaceNameOK().WithPayload(resp)
+		return operations.NewPutRobotsNamespaceNameOK().WithPayload(resp)
 	})
 
 	handler := alice.New(keyauth.New(ctx.String("auth-token")), authinfo.New).Then(api.Serve(nil))
