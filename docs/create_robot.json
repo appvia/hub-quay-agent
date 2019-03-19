@@ -1,6 +1,6 @@
 {
   "name": "robot_user",
-  "namespace": "gambol99_org",
+  "namespace": "appvia_test",
   "spec": {
     "description": "A robot user for build or a project - adding"
   }
