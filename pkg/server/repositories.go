@@ -33,7 +33,7 @@ func (s *serverImpl) Create(ctx context.Context, r *models.Repository) (*models.
 	err := func() *models.APIError {
 		// @note: the repository creation is idempotent
 		if err := s.Repositories().Create(ctx, &client.NewRepo{
-			Description: sv(r.Spec.Description),
+			Description: r.Spec.Description,
 			Namespace:   sv(r.Namespace),
 			Repository:  sv(r.Name),
 			Visibility:  r.Spec.Visibility,
@@ -138,7 +138,7 @@ func (s *serverImpl) Get(ctx context.Context, namespace, name string) (*models.R
 		}
 
 		repo.Spec = &models.RepositorySpec{
-			Description: sp(r.Description),
+			Description: r.Description,
 			Tags:        make(map[string]string, 0),
 			Robots:      make([]*models.Permission, 0),
 			Members:     make([]*models.Permission, 0),
