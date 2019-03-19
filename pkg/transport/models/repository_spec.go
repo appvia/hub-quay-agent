@@ -39,8 +39,7 @@ import (
 type RepositorySpec struct {
 
 	// A description about what the image is used for
-	// Required: true
-	Description *string `json:"description"`
+	Description string `json:"description,omitempty"`
 
 	// A list of members whom has access to the repository
 	Members []*Permission `json:"members"`
@@ -63,10 +62,6 @@ type RepositorySpec struct {
 func (m *RepositorySpec) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateDescription(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateMembers(formats); err != nil {
 		res = append(res, err)
 	}
@@ -82,15 +77,6 @@ func (m *RepositorySpec) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *RepositorySpec) validateDescription(formats strfmt.Registry) error {
-
-	if err := validate.Required("description", "body", m.Description); err != nil {
-		return err
-	}
-
 	return nil
 }
 
