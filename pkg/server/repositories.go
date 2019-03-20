@@ -36,7 +36,7 @@ func (s *serverImpl) Create(ctx context.Context, r *models.Repository) (*models.
 			Description: r.Spec.Description,
 			Namespace:   sv(r.Namespace),
 			Repository:  sv(r.Name),
-			Visibility:  r.Spec.Visibility,
+			Visibility:  sv(r.Spec.Visibility),
 		}); err != nil {
 			return newError("creating repository", err).model()
 		}
@@ -147,7 +147,7 @@ func (s *serverImpl) Get(ctx context.Context, namespace, name string) (*models.R
 			Tags:        make(map[string]string, 0),
 			Robots:      make([]*models.Permission, 0),
 			Members:     make([]*models.Permission, 0),
-			Visibility:  visibility,
+			Visibility:  sp(visibility),
 		}
 
 		for _, x := range members {
