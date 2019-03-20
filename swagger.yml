@@ -291,6 +291,8 @@ definitions:
           - internal
           - private
           - public
+    required:
+      - visibility
 
   Repository:
     description: The resource definition for a repository in the registry

@@ -54,8 +54,9 @@ type RepositorySpec struct {
 	URL string `json:"url,omitempty"`
 
 	// The visibility of the repository in the registry
+	// Required: true
 	// Enum: [internal private public]
-	Visibility string `json:"visibility,omitempty"`
+	Visibility *string `json:"visibility"`
 }
 
 // Validate validates this repository spec
@@ -164,12 +165,12 @@ func (m *RepositorySpec) validateVisibilityEnum(path, location string, value str
 
 func (m *RepositorySpec) validateVisibility(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Visibility) { // not required
-		return nil
+	if err := validate.Required("visibility", "body", m.Visibility); err != nil {
+		return err
 	}
 
 	// value enum
-	if err := m.validateVisibilityEnum("visibility", "body", m.Visibility); err != nil {
+	if err := m.validateVisibilityEnum("visibility", "body", *m.Visibility); err != nil {
 		return err
 	}
 

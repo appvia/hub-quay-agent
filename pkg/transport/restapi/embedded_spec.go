@@ -354,6 +354,9 @@ func init() {
     "RepositorySpec": {
       "description": "The definitions for a repository",
       "type": "object",
+      "required": [
+        "visibility"
+      ],
       "properties": {
         "description": {
           "description": "A description about what the image is used for",
@@ -986,6 +989,9 @@ func init() {
     "RepositorySpec": {
       "description": "The definitions for a repository",
       "type": "object",
+      "required": [
+        "visibility"
+      ],
       "properties": {
         "description": {
           "description": "A description about what the image is used for",
