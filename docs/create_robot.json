@@ -1,7 +1,7 @@
 {
-  "name": "robot_user",
-  "namespace": "appvia_test",
+  "name": "global_robot",
+  "namespace": "appvia_hub_dev",
   "spec": {
-    "description": "A robot user for build or a project - adding"
+    "description": "A robot user for build or a project"
   }
 }

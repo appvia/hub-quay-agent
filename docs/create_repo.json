@@ -1,6 +1,6 @@
 {
-  "name": "test_repo",
-  "namespace": "appvia_test",
+  "name": "testing-1",
+  "namespace": "appvia_hub_dev",
   "spec": {
     "description": "a repo for something",
     "members": [
@@ -9,12 +9,7 @@
         "permission": "read"
       }
     ],
-    "robots": [
-      {
-        "name": "appvia_test+robot_user",
-        "permission": "write"
-      }
-    ],
+    "robots": [],
     "visibility": "public"
   }
 }
