@@ -27,6 +27,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func (s *serverImpl) imageURL(namespace, name string) string {
+	return fmt.Sprintf("quay.io/%s/%s", namespace, name)
+}
+
 // Create is responsible for creating a repo
 func (s *serverImpl) Create(ctx context.Context, r *models.Repository) (*models.Repository, *models.APIError) {
 
@@ -97,7 +101,7 @@ func (s *serverImpl) Create(ctx context.Context, r *models.Repository) (*models.
 
 	// @step: fill in the model for them
 	if r.Spec.URL == "" {
-		r.Spec.URL = fmt.Sprintf("quay.io/%s/%s", sv(r.Namespace), sv(r.Name))
+		r.Spec.URL = s.imageURL(sv(r.Namespace), sv(r.Name))
 	}
 
 	return r, nil
@@ -148,6 +152,7 @@ func (s *serverImpl) Get(ctx context.Context, namespace, name string) (*models.R
 			Robots:      make([]*models.Permission, 0),
 			Members:     make([]*models.Permission, 0),
 			Visibility:  sp(visibility),
+			URL:         s.imageURL(namespace, name),
 		}
 
 		for _, x := range members {
