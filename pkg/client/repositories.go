@@ -164,6 +164,9 @@ func (r *repositoryImpl) AddRobots(ctx context.Context, name string, robots []*P
 			return fmt.Errorf("robot user: %s not found", x.Name)
 		}
 	}
+	for _, x := range robots {
+		x.IsRobot = true
+	}
 
 	return r.AddUsers(ctx, name, robots)
 }
