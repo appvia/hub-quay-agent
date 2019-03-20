@@ -29,44 +29,44 @@ import (
 	middleware "github.com/go-openapi/runtime/middleware"
 )
 
-// PostRobotsNamespaceNameHandlerFunc turns a function with the right signature into a post robots namespace name handler
-type PostRobotsNamespaceNameHandlerFunc func(PostRobotsNamespaceNameParams) middleware.Responder
+// GetHealthzHandlerFunc turns a function with the right signature into a get healthz handler
+type GetHealthzHandlerFunc func(GetHealthzParams) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn PostRobotsNamespaceNameHandlerFunc) Handle(params PostRobotsNamespaceNameParams) middleware.Responder {
+func (fn GetHealthzHandlerFunc) Handle(params GetHealthzParams) middleware.Responder {
 	return fn(params)
 }
 
-// PostRobotsNamespaceNameHandler interface for that can handle valid post robots namespace name params
-type PostRobotsNamespaceNameHandler interface {
-	Handle(PostRobotsNamespaceNameParams) middleware.Responder
+// GetHealthzHandler interface for that can handle valid get healthz params
+type GetHealthzHandler interface {
+	Handle(GetHealthzParams) middleware.Responder
 }
 
-// NewPostRobotsNamespaceName creates a new http.Handler for the post robots namespace name operation
-func NewPostRobotsNamespaceName(ctx *middleware.Context, handler PostRobotsNamespaceNameHandler) *PostRobotsNamespaceName {
-	return &PostRobotsNamespaceName{Context: ctx, Handler: handler}
+// NewGetHealthz creates a new http.Handler for the get healthz operation
+func NewGetHealthz(ctx *middleware.Context, handler GetHealthzHandler) *GetHealthz {
+	return &GetHealthz{Context: ctx, Handler: handler}
 }
 
-/*PostRobotsNamespaceName swagger:route POST /robots/{namespace}/{name} postRobotsNamespaceName
+/*GetHealthz swagger:route GET /healthz getHealthz
 
-Retrieves a list of robot accounts from within the registry
+Get health of Agent
 
-Used to retrieve a list of robot accounts and the permissions they
-have on the repositories
+Returns health and status information of the API daemon and
+related components such as the runtime.
 
 
 */
-type PostRobotsNamespaceName struct {
+type GetHealthz struct {
 	Context *middleware.Context
-	Handler PostRobotsNamespaceNameHandler
+	Handler GetHealthzHandler
 }
 
-func (o *PostRobotsNamespaceName) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (o *GetHealthz) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
 		r = rCtx
 	}
-	var Params = NewPostRobotsNamespaceNameParams()
+	var Params = NewGetHealthzParams()
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)

@@ -29,10 +29,11 @@ import (
 	middleware "github.com/go-openapi/runtime/middleware"
 
 	"github.com/appvia/hub-quay-agent/pkg/transport/restapi/operations"
-	"github.com/appvia/hub-quay-agent/pkg/transport/restapi/operations/health"
+
+	models "github.com/appvia/hub-quay-agent/pkg/transport/models"
 )
 
-//go:generate swagger generate server --target ../../transport --name HubQuayAgent --spec ../../../swagger.yml --exclude-main
+//go:generate swagger generate server --target ../../transport --name HubQuayAgent --spec ../../../swagger.yml --principal models.Principal --exclude-main
 
 func configureFlags(api *operations.HubQuayAgentAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
@@ -52,31 +53,41 @@ func configureAPI(api *operations.HubQuayAgentAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	api.DeleteRegistryNamespaceNameHandler = operations.DeleteRegistryNamespaceNameHandlerFunc(func(params operations.DeleteRegistryNamespaceNameParams) middleware.Responder {
+	// Applies when the "Authorization" header is set
+	api.ApikeyAuth = func(token string) (*models.Principal, error) {
+		return nil, errors.NotImplemented("api key auth (apikey) Authorization from header param [Authorization] has not yet been implemented")
+	}
+
+	// Set your custom authorizer if needed. Default one is security.Authorized()
+	// Expected interface runtime.Authorizer
+	//
+	// Example:
+	// api.APIAuthorizer = security.Authorized()
+	api.DeleteRegistryNamespaceNameHandler = operations.DeleteRegistryNamespaceNameHandlerFunc(func(params operations.DeleteRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .DeleteRegistryNamespaceName has not yet been implemented")
 	})
-	api.DeleteRobotsNamespaceNameHandler = operations.DeleteRobotsNamespaceNameHandlerFunc(func(params operations.DeleteRobotsNamespaceNameParams) middleware.Responder {
+	api.DeleteRobotsNamespaceNameHandler = operations.DeleteRobotsNamespaceNameHandlerFunc(func(params operations.DeleteRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .DeleteRobotsNamespaceName has not yet been implemented")
 	})
-	api.HealthGetHealthzHandler = health.GetHealthzHandlerFunc(func(params health.GetHealthzParams) middleware.Responder {
-		return middleware.NotImplemented("operation health.GetHealthz has not yet been implemented")
+	api.GetHealthzHandler = operations.GetHealthzHandlerFunc(func(params operations.GetHealthzParams) middleware.Responder {
+		return middleware.NotImplemented("operation .GetHealthz has not yet been implemented")
 	})
-	api.GetRegistryNamespaceHandler = operations.GetRegistryNamespaceHandlerFunc(func(params operations.GetRegistryNamespaceParams) middleware.Responder {
+	api.GetRegistryNamespaceHandler = operations.GetRegistryNamespaceHandlerFunc(func(params operations.GetRegistryNamespaceParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .GetRegistryNamespace has not yet been implemented")
 	})
-	api.GetRegistryNamespaceNameHandler = operations.GetRegistryNamespaceNameHandlerFunc(func(params operations.GetRegistryNamespaceNameParams) middleware.Responder {
+	api.GetRegistryNamespaceNameHandler = operations.GetRegistryNamespaceNameHandlerFunc(func(params operations.GetRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .GetRegistryNamespaceName has not yet been implemented")
 	})
-	api.GetRobotsNamespaceHandler = operations.GetRobotsNamespaceHandlerFunc(func(params operations.GetRobotsNamespaceParams) middleware.Responder {
+	api.GetRobotsNamespaceHandler = operations.GetRobotsNamespaceHandlerFunc(func(params operations.GetRobotsNamespaceParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .GetRobotsNamespace has not yet been implemented")
 	})
-	api.GetRobotsNamespaceNameHandler = operations.GetRobotsNamespaceNameHandlerFunc(func(params operations.GetRobotsNamespaceNameParams) middleware.Responder {
+	api.GetRobotsNamespaceNameHandler = operations.GetRobotsNamespaceNameHandlerFunc(func(params operations.GetRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .GetRobotsNamespaceName has not yet been implemented")
 	})
-	api.PutRegistryNamespaceNameHandler = operations.PutRegistryNamespaceNameHandlerFunc(func(params operations.PutRegistryNamespaceNameParams) middleware.Responder {
+	api.PutRegistryNamespaceNameHandler = operations.PutRegistryNamespaceNameHandlerFunc(func(params operations.PutRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .PutRegistryNamespaceName has not yet been implemented")
 	})
-	api.PutRobotsNamespaceNameHandler = operations.PutRobotsNamespaceNameHandlerFunc(func(params operations.PutRobotsNamespaceNameParams) middleware.Responder {
+	api.PutRobotsNamespaceNameHandler = operations.PutRobotsNamespaceNameHandlerFunc(func(params operations.PutRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .PutRobotsNamespaceName has not yet been implemented")
 	})
 

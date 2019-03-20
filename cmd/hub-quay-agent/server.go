@@ -18,6 +18,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -25,10 +26,11 @@ import (
 
 	"github.com/appvia/hub-quay-agent/pkg/server"
 	"github.com/appvia/hub-quay-agent/pkg/server/middleware/authinfo"
-	"github.com/appvia/hub-quay-agent/pkg/server/middleware/keyauth"
+	"github.com/appvia/hub-quay-agent/pkg/transport/models"
 	"github.com/appvia/hub-quay-agent/pkg/transport/restapi"
 	"github.com/appvia/hub-quay-agent/pkg/transport/restapi/operations"
 
+	errors "github.com/go-openapi/errors"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime/middleware"
 	flags "github.com/jessevdk/go-flags"
@@ -73,21 +75,45 @@ func invokeServerAction(ctx *cli.Context) error {
 	}
 	defer s.Shutdown()
 
-	api.DeleteRegistryNamespaceNameHandler = operations.DeleteRegistryNamespaceNameHandlerFunc(func(params operations.DeleteRegistryNamespaceNameParams) middleware.Responder {
+	apiToken := ""
+	if ctx.String("auth-token") != "" {
+		apiToken = fmt.Sprintf("Bearer %s", ctx.String("auth-token"))
+	}
+
+	api.ApikeyAuth = func(token string) (*models.Principal, error) {
+		// @step: if no authentication we can pass straight through
+		if apiToken == "" {
+			return nil, nil
+		}
+		if apiToken == "" {
+			return nil, errors.New(http.StatusUnauthorized, "authentication required")
+		}
+		if apiToken != token {
+			return nil, errors.New(http.StatusForbidden, "invalid authentication")
+		}
+
+		return nil, nil
+	}
+
+	api.GetHealthzHandler = operations.GetHealthzHandlerFunc(func(params operations.GetHealthzParams) middleware.Responder {
+		return operations.NewGetHealthzOK()
+	})
+
+	api.DeleteRegistryNamespaceNameHandler = operations.DeleteRegistryNamespaceNameHandlerFunc(func(params operations.DeleteRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		if err := svc.Delete(params.HTTPRequest.Context(), params.Namespace, params.Name); err != nil {
 			return operations.NewDeleteRegistryNamespaceNameDefault(http.StatusServiceUnavailable).WithPayload(err)
 		}
 		return operations.NewDeleteRegistryNamespaceNameOK()
 	})
 
-	api.DeleteRobotsNamespaceNameHandler = operations.DeleteRobotsNamespaceNameHandlerFunc(func(params operations.DeleteRobotsNamespaceNameParams) middleware.Responder {
+	api.DeleteRobotsNamespaceNameHandler = operations.DeleteRobotsNamespaceNameHandlerFunc(func(params operations.DeleteRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		if err := svc.DeleteRobot(params.HTTPRequest.Context(), params.Namespace, params.Name); err != nil {
 			return operations.NewDeleteRobotsNamespaceNameDefault(http.StatusServiceUnavailable).WithPayload(err)
 		}
 		return operations.NewDeleteRobotsNamespaceNameOK()
 	})
 
-	api.GetRegistryNamespaceHandler = operations.GetRegistryNamespaceHandlerFunc(func(params operations.GetRegistryNamespaceParams) middleware.Responder {
+	api.GetRegistryNamespaceHandler = operations.GetRegistryNamespaceHandlerFunc(func(params operations.GetRegistryNamespaceParams, principal *models.Principal) middleware.Responder {
 		resp, err := svc.List(params.HTTPRequest.Context(), params.Namespace)
 		if err != nil {
 			return operations.NewGetRegistryNamespaceNameDefault(http.StatusServiceUnavailable).WithPayload(err)
@@ -95,7 +121,7 @@ func invokeServerAction(ctx *cli.Context) error {
 		return operations.NewGetRegistryNamespaceOK().WithPayload(resp)
 	})
 
-	api.GetRegistryNamespaceNameHandler = operations.GetRegistryNamespaceNameHandlerFunc(func(params operations.GetRegistryNamespaceNameParams) middleware.Responder {
+	api.GetRegistryNamespaceNameHandler = operations.GetRegistryNamespaceNameHandlerFunc(func(params operations.GetRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		resp, err := svc.Get(params.HTTPRequest.Context(), params.Namespace, params.Name)
 		if err != nil {
 			return operations.NewGetRegistryNamespaceNameDefault(http.StatusServiceUnavailable).WithPayload(err)
@@ -103,7 +129,7 @@ func invokeServerAction(ctx *cli.Context) error {
 		return operations.NewGetRegistryNamespaceNameOK().WithPayload(resp)
 	})
 
-	api.GetRobotsNamespaceHandler = operations.GetRobotsNamespaceHandlerFunc(func(params operations.GetRobotsNamespaceParams) middleware.Responder {
+	api.GetRobotsNamespaceHandler = operations.GetRobotsNamespaceHandlerFunc(func(params operations.GetRobotsNamespaceParams, principal *models.Principal) middleware.Responder {
 		resp, err := svc.ListRobots(params.HTTPRequest.Context(), params.Namespace)
 		if err != nil {
 			return operations.NewGetRobotsNamespaceDefault(http.StatusInternalServerError)
@@ -111,7 +137,7 @@ func invokeServerAction(ctx *cli.Context) error {
 		return operations.NewGetRobotsNamespaceOK().WithPayload(resp)
 	})
 
-	api.GetRobotsNamespaceNameHandler = operations.GetRobotsNamespaceNameHandlerFunc(func(params operations.GetRobotsNamespaceNameParams) middleware.Responder {
+	api.GetRobotsNamespaceNameHandler = operations.GetRobotsNamespaceNameHandlerFunc(func(params operations.GetRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		resp, err := svc.GetRobot(params.HTTPRequest.Context(), params.Namespace, params.Name)
 		if err != nil {
 			return operations.NewGetRobotsNamespaceDefault(http.StatusServiceUnavailable).WithPayload(err)
@@ -119,7 +145,7 @@ func invokeServerAction(ctx *cli.Context) error {
 		return operations.NewGetRobotsNamespaceNameOK().WithPayload(resp)
 	})
 
-	api.PutRegistryNamespaceNameHandler = operations.PutRegistryNamespaceNameHandlerFunc(func(params operations.PutRegistryNamespaceNameParams) middleware.Responder {
+	api.PutRegistryNamespaceNameHandler = operations.PutRegistryNamespaceNameHandlerFunc(func(params operations.PutRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		resp, err := svc.Create(params.HTTPRequest.Context(), params.Repository)
 		if err != nil {
 			return operations.NewDeleteRegistryNamespaceNameDefault(http.StatusInternalServerError).WithPayload(err)
@@ -127,15 +153,15 @@ func invokeServerAction(ctx *cli.Context) error {
 		return operations.NewPutRegistryNamespaceNameOK().WithPayload(resp)
 	})
 
-	api.PutRobotsNamespaceNameHandler = operations.PutRobotsNamespaceNameHandlerFunc(func(params operations.PutRobotsNamespaceNameParams) middleware.Responder {
+	api.PutRobotsNamespaceNameHandler = operations.PutRobotsNamespaceNameHandlerFunc(func(params operations.PutRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		resp, err := svc.CreateRobot(params.HTTPRequest.Context(), params.Robot)
 		if err != nil {
-			return operations.NewPostRobotsNamespaceNameDefault(http.StatusInternalServerError).WithPayload(err)
+			return operations.NewPutRobotsNamespaceNameDefault(http.StatusInternalServerError).WithPayload(err)
 		}
 		return operations.NewPutRobotsNamespaceNameOK().WithPayload(resp)
 	})
 
-	handler := alice.New(keyauth.New(ctx.String("auth-token")), authinfo.New).Then(api.Serve(nil))
+	handler := alice.New(authinfo.New).Then(api.Serve(nil))
 
 	s.SetHandler(handler)
 
