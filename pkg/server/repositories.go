@@ -97,7 +97,7 @@ func (s *serverImpl) Create(ctx context.Context, r *models.Repository) (*models.
 
 	// @step: fill in the model for them
 	if r.Spec.URL == "" {
-		r.Spec.URL = sv(r.Name)
+		r.Spec.URL = fmt.Sprintf("%s/%s", sv(r.Namespace), sv(r.Name))
 	}
 
 	return r, nil
