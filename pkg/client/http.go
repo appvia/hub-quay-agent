@@ -54,17 +54,24 @@ func (c *clientImpl) Handle(ctx context.Context, method, uri string, payload, da
 	fields := log.Fields{
 		"endpoint": c.endpoint,
 		"method":   strings.ToLower(method),
+		"payload":  payload,
 		"url":      location,
 	}
 	defer func() {
-		//log.WithFields(fields).Debug("making request to quay.io api")
+		log.WithFields(fields).Debug("making request to quay api")
 	}()
 
 	err := func() error {
+		var in io.Reader
+
 		// @step: check is we have a data and if so encode it
-		in, err := encode(payload)
-		if err != nil {
-			return err
+		if payload != nil {
+			buf := &bytes.Buffer{}
+			if err := json.NewEncoder(buf).Encode(payload); err != nil {
+				return err
+			}
+			fields["payload"] = buf.String()
+			in = buf
 		}
 
 		// @step: create the http request
@@ -120,13 +127,4 @@ func (c *clientImpl) Handle(ctx context.Context, method, uri string, payload, da
 
 func decode(in io.Reader, out interface{}) error {
 	return json.NewDecoder(in).Decode(out)
-}
-
-func encode(in interface{}) (io.Reader, error) {
-	if in == nil {
-		return nil, nil
-	}
-	buf := &bytes.Buffer{}
-
-	return buf, json.NewEncoder(buf).Encode(in)
 }
