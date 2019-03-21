@@ -99,6 +99,9 @@ func (c *clientImpl) Handle(ctx context.Context, method, uri string, payload, da
 			}
 			return decode(resp.Body, data)
 		}
+		if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+			return ErrUnauthorized
+		}
 
 		if resp.Body == nil {
 			return &Error{ErrorMessage: "invalid api response", Status: resp.StatusCode}
@@ -114,6 +117,9 @@ func (c *clientImpl) Handle(ctx context.Context, method, uri string, payload, da
 		return apierror
 	}()
 	if err != nil {
+		if err == ErrUnauthorized {
+			return err
+		}
 		aerr, ok := err.(*Error)
 		if !ok {
 			return &Error{Status: http.StatusInternalServerError, ErrorMessage: err.Error()}

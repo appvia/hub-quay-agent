@@ -19,6 +19,7 @@ package client
 
 import (
 	"context"
+	"errors"
 )
 
 // AuthInfo provides the authentication info
@@ -27,6 +28,11 @@ type AuthInfo string
 var (
 	// AuthKey is the contextual key for auth
 	AuthKey AuthInfo = "authinfo"
+)
+
+var (
+	// ErrUnauthorized indicates the credentials are incorrect
+	ErrUnauthorized = errors.New("invalid credentials or permissions")
 )
 
 // Client is the client contract

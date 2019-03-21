@@ -82,13 +82,26 @@ parameters:
     required: true
 
 paths:
-  "/healthz":
+  "/alive":
     get:
       summary: Get health of Agent
       description: |
         Returns health and status information of the API daemon and
         related components such as the runtime.
       security: []
+      responses:
+        '200':
+          description: Success
+        default:
+          "$ref": "#/responses/apierror"
+
+  "/healthz/{namespace}":
+    get:
+      summary: Perform an intelligent health check on the agent
+      description: |
+        Request the agent for validate the health of the agent
+      parameters:
+        - "$ref": "#/parameters/namespace"
       responses:
         '200':
           description: Success

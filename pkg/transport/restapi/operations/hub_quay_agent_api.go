@@ -63,8 +63,11 @@ func NewHubQuayAgentAPI(spec *loads.Document) *HubQuayAgentAPI {
 		DeleteRobotsNamespaceNameHandler: DeleteRobotsNamespaceNameHandlerFunc(func(params DeleteRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation DeleteRobotsNamespaceName has not yet been implemented")
 		}),
-		GetHealthzHandler: GetHealthzHandlerFunc(func(params GetHealthzParams) middleware.Responder {
-			return middleware.NotImplemented("operation GetHealthz has not yet been implemented")
+		GetAliveHandler: GetAliveHandlerFunc(func(params GetAliveParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetAlive has not yet been implemented")
+		}),
+		GetHealthzNamespaceHandler: GetHealthzNamespaceHandlerFunc(func(params GetHealthzNamespaceParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation GetHealthzNamespace has not yet been implemented")
 		}),
 		GetRegistryNamespaceHandler: GetRegistryNamespaceHandlerFunc(func(params GetRegistryNamespaceParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation GetRegistryNamespace has not yet been implemented")
@@ -134,8 +137,10 @@ type HubQuayAgentAPI struct {
 	DeleteRegistryNamespaceNameHandler DeleteRegistryNamespaceNameHandler
 	// DeleteRobotsNamespaceNameHandler sets the operation handler for the delete robots namespace name operation
 	DeleteRobotsNamespaceNameHandler DeleteRobotsNamespaceNameHandler
-	// GetHealthzHandler sets the operation handler for the get healthz operation
-	GetHealthzHandler GetHealthzHandler
+	// GetAliveHandler sets the operation handler for the get alive operation
+	GetAliveHandler GetAliveHandler
+	// GetHealthzNamespaceHandler sets the operation handler for the get healthz namespace operation
+	GetHealthzNamespaceHandler GetHealthzNamespaceHandler
 	// GetRegistryNamespaceHandler sets the operation handler for the get registry namespace operation
 	GetRegistryNamespaceHandler GetRegistryNamespaceHandler
 	// GetRegistryNamespaceNameHandler sets the operation handler for the get registry namespace name operation
@@ -223,8 +228,12 @@ func (o *HubQuayAgentAPI) Validate() error {
 		unregistered = append(unregistered, "DeleteRobotsNamespaceNameHandler")
 	}
 
-	if o.GetHealthzHandler == nil {
-		unregistered = append(unregistered, "GetHealthzHandler")
+	if o.GetAliveHandler == nil {
+		unregistered = append(unregistered, "GetAliveHandler")
+	}
+
+	if o.GetHealthzNamespaceHandler == nil {
+		unregistered = append(unregistered, "GetHealthzNamespaceHandler")
 	}
 
 	if o.GetRegistryNamespaceHandler == nil {
@@ -374,7 +383,12 @@ func (o *HubQuayAgentAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/healthz"] = NewGetHealthz(o.context, o.GetHealthzHandler)
+	o.handlers["GET"]["/alive"] = NewGetAlive(o.context, o.GetAliveHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/healthz/{namespace}"] = NewGetHealthzNamespace(o.context, o.GetHealthzNamespaceHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

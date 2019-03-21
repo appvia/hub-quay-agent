@@ -31,25 +31,25 @@ import (
 	models "github.com/appvia/hub-quay-agent/pkg/transport/models"
 )
 
-// GetHealthzHandlerFunc turns a function with the right signature into a get healthz handler
-type GetHealthzHandlerFunc func(GetHealthzParams, *models.Principal) middleware.Responder
+// GetHealthzNamespaceHandlerFunc turns a function with the right signature into a get healthz namespace handler
+type GetHealthzNamespaceHandlerFunc func(GetHealthzNamespaceParams, *models.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetHealthzHandlerFunc) Handle(params GetHealthzParams, principal *models.Principal) middleware.Responder {
+func (fn GetHealthzNamespaceHandlerFunc) Handle(params GetHealthzNamespaceParams, principal *models.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
-// GetHealthzHandler interface for that can handle valid get healthz params
-type GetHealthzHandler interface {
-	Handle(GetHealthzParams, *models.Principal) middleware.Responder
+// GetHealthzNamespaceHandler interface for that can handle valid get healthz namespace params
+type GetHealthzNamespaceHandler interface {
+	Handle(GetHealthzNamespaceParams, *models.Principal) middleware.Responder
 }
 
-// NewGetHealthz creates a new http.Handler for the get healthz operation
-func NewGetHealthz(ctx *middleware.Context, handler GetHealthzHandler) *GetHealthz {
-	return &GetHealthz{Context: ctx, Handler: handler}
+// NewGetHealthzNamespace creates a new http.Handler for the get healthz namespace operation
+func NewGetHealthzNamespace(ctx *middleware.Context, handler GetHealthzNamespaceHandler) *GetHealthzNamespace {
+	return &GetHealthzNamespace{Context: ctx, Handler: handler}
 }
 
-/*GetHealthz swagger:route GET /healthz getHealthz
+/*GetHealthzNamespace swagger:route GET /healthz/{namespace} getHealthzNamespace
 
 Perform an intelligent health check on the agent
 
@@ -57,17 +57,17 @@ Request the agent for validate the health of the agent
 
 
 */
-type GetHealthz struct {
+type GetHealthzNamespace struct {
 	Context *middleware.Context
-	Handler GetHealthzHandler
+	Handler GetHealthzNamespaceHandler
 }
 
-func (o *GetHealthz) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (o *GetHealthzNamespace) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
 		r = rCtx
 	}
-	var Params = NewGetHealthzParams()
+	var Params = NewGetHealthzNamespaceParams()
 
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
