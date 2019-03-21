@@ -138,6 +138,10 @@ func (r *repositoryImpl) Get(ctx context.Context, name string) (*Repository, err
 
 // AddUsers is responsible for adding a user
 func (r *repositoryImpl) AddUsers(ctx context.Context, name string, members []*Permission) error {
+	if len(members) <= 0 {
+		return nil
+	}
+
 	current, err := r.ListUsers(ctx, name)
 	if err != nil {
 		return err
@@ -163,8 +167,6 @@ func (r *repositoryImpl) AddRobots(ctx context.Context, name string, robots []*P
 		} else if !found {
 			return fmt.Errorf("robot user: %s not found", x.Name)
 		}
-	}
-	for _, x := range robots {
 		x.IsRobot = true
 	}
 
