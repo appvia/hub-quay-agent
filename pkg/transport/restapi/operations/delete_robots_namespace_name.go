@@ -27,19 +27,21 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
+
+	models "github.com/appvia/hub-quay-agent/pkg/transport/models"
 )
 
 // DeleteRobotsNamespaceNameHandlerFunc turns a function with the right signature into a delete robots namespace name handler
-type DeleteRobotsNamespaceNameHandlerFunc func(DeleteRobotsNamespaceNameParams) middleware.Responder
+type DeleteRobotsNamespaceNameHandlerFunc func(DeleteRobotsNamespaceNameParams, *models.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn DeleteRobotsNamespaceNameHandlerFunc) Handle(params DeleteRobotsNamespaceNameParams) middleware.Responder {
-	return fn(params)
+func (fn DeleteRobotsNamespaceNameHandlerFunc) Handle(params DeleteRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
+	return fn(params, principal)
 }
 
 // DeleteRobotsNamespaceNameHandler interface for that can handle valid delete robots namespace name params
 type DeleteRobotsNamespaceNameHandler interface {
-	Handle(DeleteRobotsNamespaceNameParams) middleware.Responder
+	Handle(DeleteRobotsNamespaceNameParams, *models.Principal) middleware.Responder
 }
 
 // NewDeleteRobotsNamespaceName creates a new http.Handler for the delete robots namespace name operation
@@ -67,12 +69,25 @@ func (o *DeleteRobotsNamespaceName) ServeHTTP(rw http.ResponseWriter, r *http.Re
 	}
 	var Params = NewDeleteRobotsNamespaceNameParams()
 
+	uprinc, aCtx, err := o.Context.Authorize(r, route)
+	if err != nil {
+		o.Context.Respond(rw, r, route.Produces, route, err)
+		return
+	}
+	if aCtx != nil {
+		r = aCtx
+	}
+	var principal *models.Principal
+	if uprinc != nil {
+		principal = uprinc.(*models.Principal) // this is really a models.Principal, I promise
+	}
+
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
-	res := o.Handler.Handle(Params) // actually handle the request
+	res := o.Handler.Handle(Params, principal) // actually handle the request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

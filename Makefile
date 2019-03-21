@@ -117,6 +117,7 @@ api:
 		--copyright-file=COPYRIGHT \
 		--exclude-main \
 		--regenerate-configureapi \
+		--principal=models.Principal \
 		--server-package=restapi \
 		--spec=$(SWAGGER_API) \
 		--target=pkg/transport \

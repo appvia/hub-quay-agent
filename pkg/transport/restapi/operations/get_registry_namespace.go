@@ -27,19 +27,21 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
+
+	models "github.com/appvia/hub-quay-agent/pkg/transport/models"
 )
 
 // GetRegistryNamespaceHandlerFunc turns a function with the right signature into a get registry namespace handler
-type GetRegistryNamespaceHandlerFunc func(GetRegistryNamespaceParams) middleware.Responder
+type GetRegistryNamespaceHandlerFunc func(GetRegistryNamespaceParams, *models.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetRegistryNamespaceHandlerFunc) Handle(params GetRegistryNamespaceParams) middleware.Responder {
-	return fn(params)
+func (fn GetRegistryNamespaceHandlerFunc) Handle(params GetRegistryNamespaceParams, principal *models.Principal) middleware.Responder {
+	return fn(params, principal)
 }
 
 // GetRegistryNamespaceHandler interface for that can handle valid get registry namespace params
 type GetRegistryNamespaceHandler interface {
-	Handle(GetRegistryNamespaceParams) middleware.Responder
+	Handle(GetRegistryNamespaceParams, *models.Principal) middleware.Responder
 }
 
 // NewGetRegistryNamespace creates a new http.Handler for the get registry namespace operation
@@ -67,12 +69,25 @@ func (o *GetRegistryNamespace) ServeHTTP(rw http.ResponseWriter, r *http.Request
 	}
 	var Params = NewGetRegistryNamespaceParams()
 
+	uprinc, aCtx, err := o.Context.Authorize(r, route)
+	if err != nil {
+		o.Context.Respond(rw, r, route.Produces, route, err)
+		return
+	}
+	if aCtx != nil {
+		r = aCtx
+	}
+	var principal *models.Principal
+	if uprinc != nil {
+		principal = uprinc.(*models.Principal) // this is really a models.Principal, I promise
+	}
+
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
-	res := o.Handler.Handle(Params) // actually handle the request
+	res := o.Handler.Handle(Params, principal) // actually handle the request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 

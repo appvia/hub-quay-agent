@@ -37,7 +37,7 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/appvia/hub-quay-agent/pkg/transport/restapi/operations/health"
+	models "github.com/appvia/hub-quay-agent/pkg/transport/models"
 )
 
 // NewHubQuayAgentAPI creates a new HubQuayAgent instance
@@ -57,33 +57,41 @@ func NewHubQuayAgentAPI(spec *loads.Document) *HubQuayAgentAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
-		DeleteRegistryNamespaceNameHandler: DeleteRegistryNamespaceNameHandlerFunc(func(params DeleteRegistryNamespaceNameParams) middleware.Responder {
+		DeleteRegistryNamespaceNameHandler: DeleteRegistryNamespaceNameHandlerFunc(func(params DeleteRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation DeleteRegistryNamespaceName has not yet been implemented")
 		}),
-		DeleteRobotsNamespaceNameHandler: DeleteRobotsNamespaceNameHandlerFunc(func(params DeleteRobotsNamespaceNameParams) middleware.Responder {
+		DeleteRobotsNamespaceNameHandler: DeleteRobotsNamespaceNameHandlerFunc(func(params DeleteRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation DeleteRobotsNamespaceName has not yet been implemented")
 		}),
-		HealthGetHealthzHandler: health.GetHealthzHandlerFunc(func(params health.GetHealthzParams) middleware.Responder {
-			return middleware.NotImplemented("operation HealthGetHealthz has not yet been implemented")
+		GetHealthzHandler: GetHealthzHandlerFunc(func(params GetHealthzParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetHealthz has not yet been implemented")
 		}),
-		GetRegistryNamespaceHandler: GetRegistryNamespaceHandlerFunc(func(params GetRegistryNamespaceParams) middleware.Responder {
+		GetRegistryNamespaceHandler: GetRegistryNamespaceHandlerFunc(func(params GetRegistryNamespaceParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation GetRegistryNamespace has not yet been implemented")
 		}),
-		GetRegistryNamespaceNameHandler: GetRegistryNamespaceNameHandlerFunc(func(params GetRegistryNamespaceNameParams) middleware.Responder {
+		GetRegistryNamespaceNameHandler: GetRegistryNamespaceNameHandlerFunc(func(params GetRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation GetRegistryNamespaceName has not yet been implemented")
 		}),
-		GetRobotsNamespaceHandler: GetRobotsNamespaceHandlerFunc(func(params GetRobotsNamespaceParams) middleware.Responder {
+		GetRobotsNamespaceHandler: GetRobotsNamespaceHandlerFunc(func(params GetRobotsNamespaceParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation GetRobotsNamespace has not yet been implemented")
 		}),
-		GetRobotsNamespaceNameHandler: GetRobotsNamespaceNameHandlerFunc(func(params GetRobotsNamespaceNameParams) middleware.Responder {
+		GetRobotsNamespaceNameHandler: GetRobotsNamespaceNameHandlerFunc(func(params GetRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation GetRobotsNamespaceName has not yet been implemented")
 		}),
-		PutRegistryNamespaceNameHandler: PutRegistryNamespaceNameHandlerFunc(func(params PutRegistryNamespaceNameParams) middleware.Responder {
+		PutRegistryNamespaceNameHandler: PutRegistryNamespaceNameHandlerFunc(func(params PutRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation PutRegistryNamespaceName has not yet been implemented")
 		}),
-		PutRobotsNamespaceNameHandler: PutRobotsNamespaceNameHandlerFunc(func(params PutRobotsNamespaceNameParams) middleware.Responder {
+		PutRobotsNamespaceNameHandler: PutRobotsNamespaceNameHandlerFunc(func(params PutRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation PutRobotsNamespaceName has not yet been implemented")
 		}),
+
+		// Applies when the "Authorization" header is set
+		ApikeyAuth: func(token string) (*models.Principal, error) {
+			return nil, errors.NotImplemented("api key auth (apikey) Authorization from header param [Authorization] has not yet been implemented")
+		},
+
+		// default authorizer is authorized meaning no requests are blocked
+		APIAuthorizer: security.Authorized(),
 	}
 }
 
@@ -115,12 +123,19 @@ type HubQuayAgentAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// ApikeyAuth registers a function that takes a token and returns a principal
+	// it performs authentication based on an api key Authorization provided in the header
+	ApikeyAuth func(string) (*models.Principal, error)
+
+	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
+	APIAuthorizer runtime.Authorizer
+
 	// DeleteRegistryNamespaceNameHandler sets the operation handler for the delete registry namespace name operation
 	DeleteRegistryNamespaceNameHandler DeleteRegistryNamespaceNameHandler
 	// DeleteRobotsNamespaceNameHandler sets the operation handler for the delete robots namespace name operation
 	DeleteRobotsNamespaceNameHandler DeleteRobotsNamespaceNameHandler
-	// HealthGetHealthzHandler sets the operation handler for the get healthz operation
-	HealthGetHealthzHandler health.GetHealthzHandler
+	// GetHealthzHandler sets the operation handler for the get healthz operation
+	GetHealthzHandler GetHealthzHandler
 	// GetRegistryNamespaceHandler sets the operation handler for the get registry namespace operation
 	GetRegistryNamespaceHandler GetRegistryNamespaceHandler
 	// GetRegistryNamespaceNameHandler sets the operation handler for the get registry namespace name operation
@@ -196,6 +211,10 @@ func (o *HubQuayAgentAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.ApikeyAuth == nil {
+		unregistered = append(unregistered, "AuthorizationAuth")
+	}
+
 	if o.DeleteRegistryNamespaceNameHandler == nil {
 		unregistered = append(unregistered, "DeleteRegistryNamespaceNameHandler")
 	}
@@ -204,8 +223,8 @@ func (o *HubQuayAgentAPI) Validate() error {
 		unregistered = append(unregistered, "DeleteRobotsNamespaceNameHandler")
 	}
 
-	if o.HealthGetHealthzHandler == nil {
-		unregistered = append(unregistered, "health.GetHealthzHandler")
+	if o.GetHealthzHandler == nil {
+		unregistered = append(unregistered, "GetHealthzHandler")
 	}
 
 	if o.GetRegistryNamespaceHandler == nil {
@@ -247,14 +266,26 @@ func (o *HubQuayAgentAPI) ServeErrorFor(operationID string) func(http.ResponseWr
 // AuthenticatorsFor gets the authenticators for the specified security schemes
 func (o *HubQuayAgentAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
 
-	return nil
+	result := make(map[string]runtime.Authenticator)
+	for name, scheme := range schemes {
+		switch name {
+
+		case "apikey":
+
+			result[name] = o.APIKeyAuthenticator(scheme.Name, scheme.In, func(token string) (interface{}, error) {
+				return o.ApikeyAuth(token)
+			})
+
+		}
+	}
+	return result
 
 }
 
 // Authorizer returns the registered authorizer
 func (o *HubQuayAgentAPI) Authorizer() runtime.Authorizer {
 
-	return nil
+	return o.APIAuthorizer
 
 }
 
@@ -343,7 +374,7 @@ func (o *HubQuayAgentAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/healthz"] = health.NewGetHealthz(o.context, o.HealthGetHealthzHandler)
+	o.handlers["GET"]["/healthz"] = NewGetHealthz(o.context, o.GetHealthzHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

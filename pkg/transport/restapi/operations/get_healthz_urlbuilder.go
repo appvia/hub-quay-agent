@@ -27,23 +27,17 @@ import (
 	"errors"
 	"net/url"
 	golangswaggerpaths "path"
-	"strings"
 )
 
-// PostRobotsNamespaceNameURL generates an URL for the post robots namespace name operation
-type PostRobotsNamespaceNameURL struct {
-	Name      string
-	Namespace string
-
+// GetHealthzURL generates an URL for the get healthz operation
+type GetHealthzURL struct {
 	_basePath string
-	// avoid unkeyed usage
-	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *PostRobotsNamespaceNameURL) WithBasePath(bp string) *PostRobotsNamespaceNameURL {
+func (o *GetHealthzURL) WithBasePath(bp string) *GetHealthzURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -51,29 +45,15 @@ func (o *PostRobotsNamespaceNameURL) WithBasePath(bp string) *PostRobotsNamespac
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *PostRobotsNamespaceNameURL) SetBasePath(bp string) {
+func (o *GetHealthzURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *PostRobotsNamespaceNameURL) Build() (*url.URL, error) {
+func (o *GetHealthzURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/robots/{namespace}/{name}"
-
-	name := o.Name
-	if name != "" {
-		_path = strings.Replace(_path, "{name}", name, -1)
-	} else {
-		return nil, errors.New("name is required on PostRobotsNamespaceNameURL")
-	}
-
-	namespace := o.Namespace
-	if namespace != "" {
-		_path = strings.Replace(_path, "{namespace}", namespace, -1)
-	} else {
-		return nil, errors.New("namespace is required on PostRobotsNamespaceNameURL")
-	}
+	var _path = "/healthz"
 
 	_basePath := o._basePath
 	if _basePath == "" {
@@ -85,7 +65,7 @@ func (o *PostRobotsNamespaceNameURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *PostRobotsNamespaceNameURL) Must(u *url.URL, err error) *url.URL {
+func (o *GetHealthzURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -96,17 +76,17 @@ func (o *PostRobotsNamespaceNameURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *PostRobotsNamespaceNameURL) String() string {
+func (o *GetHealthzURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *PostRobotsNamespaceNameURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *GetHealthzURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on PostRobotsNamespaceNameURL")
+		return nil, errors.New("scheme is required for a full url on GetHealthzURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on PostRobotsNamespaceNameURL")
+		return nil, errors.New("host is required for a full url on GetHealthzURL")
 	}
 
 	base, err := o.Build()
@@ -120,6 +100,6 @@ func (o *PostRobotsNamespaceNameURL) BuildFull(scheme, host string) (*url.URL, e
 }
 
 // StringFull returns the string representation of a complete url
-func (o *PostRobotsNamespaceNameURL) StringFull(scheme, host string) string {
+func (o *GetHealthzURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

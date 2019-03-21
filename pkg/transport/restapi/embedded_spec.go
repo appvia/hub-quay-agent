@@ -60,10 +60,8 @@ func init() {
   "paths": {
     "/healthz": {
       "get": {
+        "security": [],
         "description": "Returns health and status information of the API daemon and\nrelated components such as the runtime.\n",
-        "tags": [
-          "health"
-        ],
         "summary": "Get health of Agent",
         "responses": {
           "200": {
@@ -543,10 +541,15 @@ func init() {
   "securityDefinitions": {
     "apikey": {
       "type": "apiKey",
-      "name": "x-token",
+      "name": "Authorization",
       "in": "header"
     }
-  }
+  },
+  "security": [
+    {
+      "apikey": null
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "consumes": [
@@ -573,10 +576,8 @@ func init() {
   "paths": {
     "/healthz": {
       "get": {
+        "security": [],
         "description": "Returns health and status information of the API daemon and\nrelated components such as the runtime.\n",
-        "tags": [
-          "health"
-        ],
         "summary": "Get health of Agent",
         "responses": {
           "200": {
@@ -1178,9 +1179,14 @@ func init() {
   "securityDefinitions": {
     "apikey": {
       "type": "apiKey",
-      "name": "x-token",
+      "name": "Authorization",
       "in": "header"
     }
-  }
+  },
+  "security": [
+    {
+      "apikey": []
+    }
+  ]
 }`))
 }
