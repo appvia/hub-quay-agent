@@ -58,11 +58,30 @@ func init() {
   },
   "basePath": "/api/v1beta",
   "paths": {
-    "/healthz": {
+    "/alive": {
       "get": {
         "security": [],
         "description": "Returns health and status information of the API daemon and\nrelated components such as the runtime.\n",
         "summary": "Get health of Agent",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "default": {
+            "$ref": "#/responses/apierror"
+          }
+        }
+      }
+    },
+    "/healthz/{namespace}": {
+      "get": {
+        "description": "Request the agent for validate the health of the agent\n",
+        "summary": "Perform an intelligent health check on the agent",
+        "parameters": [
+          {
+            "$ref": "#/parameters/namespace"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -574,11 +593,37 @@ func init() {
   },
   "basePath": "/api/v1beta",
   "paths": {
-    "/healthz": {
+    "/alive": {
       "get": {
         "security": [],
         "description": "Returns health and status information of the API daemon and\nrelated components such as the runtime.\n",
         "summary": "Get health of Agent",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "default": {
+            "description": "A generic erorr returned by the api",
+            "schema": {
+              "$ref": "#/definitions/APIError"
+            }
+          }
+        }
+      }
+    },
+    "/healthz/{namespace}": {
+      "get": {
+        "description": "Request the agent for validate the health of the agent\n",
+        "summary": "Perform an intelligent health check on the agent",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The namespace of the repostory",
+            "name": "namespace",
+            "in": "path",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"

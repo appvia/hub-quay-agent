@@ -37,6 +37,8 @@ type Handler interface {
 	Get(context.Context, string, string) (*models.Repository, *models.APIError)
 	// GetRobot is responsible for retrieving a robot
 	GetRobot(context.Context, string, string) (*models.Robot, *models.APIError)
+	// Health is responsible for checking the health of the agent
+	Health(context.Context, string) *models.APIError
 	// List is responsible for listing all the repostories
 	List(context.Context, string) (*models.RepositoryList, *models.APIError)
 	// ListRobots is responsible for listing all the robots

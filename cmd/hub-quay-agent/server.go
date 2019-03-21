@@ -41,8 +41,6 @@ import (
 
 // invokeServerAction handles the command line server action
 func invokeServerAction(ctx *cli.Context) error {
-	// @step: validate the options
-
 	// @step: create the agent service
 	svc, err := server.New(&server.Options{
 		AccessToken: ctx.String("quay-api-token"),
@@ -95,8 +93,15 @@ func invokeServerAction(ctx *cli.Context) error {
 		return nil, nil
 	}
 
-	api.GetHealthzHandler = operations.GetHealthzHandlerFunc(func(params operations.GetHealthzParams) middleware.Responder {
-		return operations.NewGetHealthzOK()
+	api.GetAliveHandler = operations.GetAliveHandlerFunc(func(params operations.GetAliveParams) middleware.Responder {
+		return operations.NewGetAliveOK()
+	})
+
+	api.GetHealthzNamespaceHandler = operations.GetHealthzNamespaceHandlerFunc(func(params operations.GetHealthzNamespaceParams, principal *models.Principal) middleware.Responder {
+		if err := svc.Health(params.HTTPRequest.Context(), params.Namespace); err != nil {
+			return operations.NewGetHealthzNamespaceDefault(http.StatusInternalServerError).WithPayload(err)
+		}
+		return operations.NewGetHealthzNamespaceOK()
 	})
 
 	api.DeleteRegistryNamespaceNameHandler = operations.DeleteRegistryNamespaceNameHandlerFunc(func(params operations.DeleteRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
