@@ -5,6 +5,7 @@ defaults: &defaults
   docker:
     - image: circleci/golang:1.11
   environment:
+    DOCKER_IMAGE: quay.io/appvia/hub-quay-agent
     GOPATH: /go
   working_directory: /go/src/github.com/appvia/hub-quay-agent
 
@@ -15,11 +16,36 @@ jobs:
       - checkout
       - run: make go-swagger
       - run: make test
-      - run: make build
+      - run: make static
+      - persist_to_workspace:
+          root: bin
+          paths:
+            - hub-quay-agent
 
+  release:
+    <<: *defaults
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - attach_workspace:
+          at: bin
+      - deploy:
+          command: |
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} quay.io
+            docker build -t ${DOCKER_IMAGE}:${CIRCLE_TAG:-latest} .
+            docker push ${DOCKER_IMAGE}:${CIRCLE_TAG:-latest}
 
 workflows:
   version: 2
   workflow:
     jobs:
     - build
+    - release:
+        requires:
+          - build
+        filters:
+          branches:
+            only: master
+          tags:
+            only: /^v.*$/
