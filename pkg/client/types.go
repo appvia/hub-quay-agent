@@ -41,6 +41,8 @@ type Client interface {
 	Repositories() Repositories
 	// Robots returns the robots api
 	Robots() Robots
+	// Teams returns the teams client
+	Teams() Teams
 	// Handle is a generic handler for the http requests
 	Handle(context.Context, string, string, interface{}, interface{}) error
 }
@@ -99,6 +101,8 @@ type Teams interface {
 	Has(context.Context, string) (bool, error)
 	// List is responsible getting a list o teams
 	List(context.Context, string) (*TeamList, error)
+	// ListMembers is responsible for listing the members in a team
+	ListMembers(context.Context, string) (*Members, error)
 }
 
 // Error is a generic error handed back by the API

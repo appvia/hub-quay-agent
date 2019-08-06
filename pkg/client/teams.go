@@ -53,6 +53,20 @@ func (t *teamsImpl) Get(ctx context.Context, fullname string) (*Team, error) {
 	return nil, errors.New("team does not exist in organization")
 }
 
+// ListMembers returns a list of members in a team
+func (t *teamsImpl) ListMembers(ctx context.Context, fullname string) (*Members, error) {
+	var list *Members
+
+	namespace, name := t.parseFullName(fullname)
+	uri := fmt.Sprintf("organization/%s/team/%s/members", namespace, name)
+
+	if err := t.Handle(ctx, http.MethodGet, uri, nil, list); err != nil {
+		return nil, err
+	}
+
+	return list, nil
+}
+
 // Create is used to create a team
 func (t *teamsImpl) Create(ctx context.Context, team *Team, members *Members) (*Team, error) {
 	namespace, name := t.parseFullName(team.Name)
@@ -80,10 +94,8 @@ func (t *teamsImpl) Create(ctx context.Context, team *Team, members *Members) (*
 	}
 
 	// @step: else we are updating an existing team in the org
-	current := &Members{}
-	uri := fmt.Sprintf("organization/%s/team/%s/members", namespace, name)
-
-	if err := t.Handle(ctx, http.MethodGet, uri, nil, current); err != nil {
+	current, err := t.ListMembers(ctx, namespace+"/"+name)
+	if err != nil {
 		return nil, err
 	}
 

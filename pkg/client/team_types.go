@@ -30,12 +30,6 @@ type Team struct {
 	Name        string `json:"name"`
 	MemberCount int    `json:"member_count"`
 	RepoCount   int    `json:"repo_count"`
-	Avatar      struct {
-		Color string `json:"color"`
-		Kind  string `json:"kind"`
-		Hash  string `json:"hash"`
-		Name  string `json:"name"`
-	} `json:"avatar"`
 	Description string `json:"description"`
 }
 

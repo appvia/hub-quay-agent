@@ -118,6 +118,13 @@ func invokeServerAction(ctx *cli.Context) error {
 		return operations.NewDeleteRobotsNamespaceNameOK()
 	})
 
+	api.DeleteTeamsNamespaceNameHandler = operations.DeleteTeamsNamespaceNameHandlerFunc(func(params operations.DeleteTeamsNamespaceNameParams, principal *models.Principal) middleware.Responder {
+		if err := svc.DeleteTeam(params.HTTPRequest.Context(), params.Namespace, params.Name); err != nil {
+			return operations.NewDeleteTeamsNamespaceNameDefault(http.StatusServiceUnavailable).WithPayload(err)
+		}
+		return operations.NewDeleteTeamsNamespaceNameOK()
+	})
+
 	api.GetRegistryNamespaceHandler = operations.GetRegistryNamespaceHandlerFunc(func(params operations.GetRegistryNamespaceParams, principal *models.Principal) middleware.Responder {
 		resp, err := svc.List(params.HTTPRequest.Context(), params.Namespace)
 		if err != nil {
@@ -150,6 +157,22 @@ func invokeServerAction(ctx *cli.Context) error {
 		return operations.NewGetRobotsNamespaceNameOK().WithPayload(resp)
 	})
 
+	api.GetTeamsNamespaceHandler = operations.GetTeamsNamespaceHandlerFunc(func(params operations.GetTeamsNamespaceParams, principal *models.Principal) middleware.Responder {
+		resp, err := svc.ListTeams(params.HTTPRequest.Context(), params.Namespace)
+		if err != nil {
+			return operations.NewGetTeamsNamespaceDefault(http.StatusInternalServerError)
+		}
+		return operations.NewGetTeamsNamespaceOK().WithPayload(resp)
+	})
+
+	api.GetTeamsNamespaceNameHandler = operations.GetTeamsNamespaceNameHandlerFunc(func(params operations.GetTeamsNamespaceNameParams, principal *models.Principal) middleware.Responder {
+		resp, err := svc.GetTeam(params.HTTPRequest.Context(), params.Namespace, params.Name)
+		if err != nil {
+			return operations.NewGetTeamsNamespaceDefault(http.StatusServiceUnavailable).WithPayload(err)
+		}
+		return operations.NewGetTeamsNamespaceNameOK().WithPayload(resp)
+	})
+
 	api.PutRegistryNamespaceNameHandler = operations.PutRegistryNamespaceNameHandlerFunc(func(params operations.PutRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		resp, err := svc.Create(params.HTTPRequest.Context(), params.Repository)
 		if err != nil {
@@ -164,6 +187,10 @@ func invokeServerAction(ctx *cli.Context) error {
 			return operations.NewPutRobotsNamespaceNameDefault(http.StatusInternalServerError).WithPayload(err)
 		}
 		return operations.NewPutRobotsNamespaceNameOK().WithPayload(resp)
+	})
+
+	api.PutTeamsNamespaceNameHandler = operations.PutTeamsNamespaceNameHandlerFunc(func(params operations.PutTeamsNamespaceNameParams, principal *models.Principal) middleware.Responder {
+		return middleware.NotImplemented("operation .PutTeamsNamespaceName has not yet been implemented")
 	})
 
 	handler := alice.New(authinfo.New).Then(api.Serve(nil))
