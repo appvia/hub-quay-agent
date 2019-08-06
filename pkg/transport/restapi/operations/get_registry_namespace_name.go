@@ -51,7 +51,7 @@ func NewGetRegistryNamespaceName(ctx *middleware.Context, handler GetRegistryNam
 
 /*GetRegistryNamespaceName swagger:route GET /registry/{namespace}/{name} getRegistryNamespaceName
 
-Retrieves a list of respositories witin the registry
+Retrieves the configuration of a repository in the registry
 
 Used to retrieve a repository from the registry
 

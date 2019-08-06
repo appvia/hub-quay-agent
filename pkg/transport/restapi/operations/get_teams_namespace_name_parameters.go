@@ -32,22 +32,28 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// NewGetRobotsNamespaceParams creates a new GetRobotsNamespaceParams object
+// NewGetTeamsNamespaceNameParams creates a new GetTeamsNamespaceNameParams object
 // no default values defined in spec.
-func NewGetRobotsNamespaceParams() GetRobotsNamespaceParams {
+func NewGetTeamsNamespaceNameParams() GetTeamsNamespaceNameParams {
 
-	return GetRobotsNamespaceParams{}
+	return GetTeamsNamespaceNameParams{}
 }
 
-// GetRobotsNamespaceParams contains all the bound params for the get robots namespace operation
+// GetTeamsNamespaceNameParams contains all the bound params for the get teams namespace name operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters GetRobotsNamespace
-type GetRobotsNamespaceParams struct {
+// swagger:parameters GetTeamsNamespaceName
+type GetTeamsNamespaceNameParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*The name of the repository you are acting upon
+
+	  Required: true
+	  In: path
+	*/
+	Name string
 	/*The namespace of the repository
 
 	  Required: true
@@ -59,11 +65,16 @@ type GetRobotsNamespaceParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewGetRobotsNamespaceParams() beforehand.
-func (o *GetRobotsNamespaceParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewGetTeamsNamespaceNameParams() beforehand.
+func (o *GetTeamsNamespaceNameParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
+
+	rName, rhkName, _ := route.Params.GetOK("name")
+	if err := o.bindName(rName, rhkName, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	rNamespace, rhkNamespace, _ := route.Params.GetOK("namespace")
 	if err := o.bindNamespace(rNamespace, rhkNamespace, route.Formats); err != nil {
@@ -76,8 +87,23 @@ func (o *GetRobotsNamespaceParams) BindRequest(r *http.Request, route *middlewar
 	return nil
 }
 
+// bindName binds and validates parameter Name from path.
+func (o *GetTeamsNamespaceNameParams) bindName(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// Parameter is provided by construction from the route
+
+	o.Name = raw
+
+	return nil
+}
+
 // bindNamespace binds and validates parameter Namespace from path.
-func (o *GetRobotsNamespaceParams) bindNamespace(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetTeamsNamespaceNameParams) bindNamespace(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]

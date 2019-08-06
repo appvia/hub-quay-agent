@@ -40,10 +40,12 @@ type Object struct {
 	Name *string `json:"name"`
 
 	// A namespace for the resource, which in this case maps on the organization
+	//
 	// Required: true
 	Namespace *string `json:"namespace"`
 
 	// A cryptographic signature used to verify the request payload
+	//
 	Signature string `json:"signature,omitempty"`
 }
 

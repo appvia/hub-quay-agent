@@ -51,8 +51,7 @@ func NewGetAlive(ctx *middleware.Context, handler GetAliveHandler) *GetAlive {
 
 Get health of Agent
 
-Returns health and status information of the API daemon and
-related components such as the runtime.
+Returns health and status information of the API daemon and related components such as the runtime.
 
 
 */

@@ -53,16 +53,19 @@ type PutRegistryNamespaceNameParams struct {
 	HTTPRequest *http.Request `json:"-"`
 
 	/*The name of the repository you are acting upon
+
 	  Required: true
 	  In: path
 	*/
 	Name string
-	/*The namespace of the repostory
+	/*The namespace of the repository
+
 	  Required: true
 	  In: path
 	*/
 	Namespace string
 	/*The repository definition we are acting on
+
 	  Required: true
 	  In: body
 	*/

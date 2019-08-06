@@ -48,7 +48,8 @@ type GetRegistryNamespaceParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*The namespace of the repostory
+	/*The namespace of the repository
+
 	  Required: true
 	  In: path
 	*/

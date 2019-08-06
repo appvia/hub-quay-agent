@@ -53,8 +53,7 @@ func NewPutRobotsNamespaceName(ctx *middleware.Context, handler PutRobotsNamespa
 
 Retrieves a list of robot accounts from within the registry
 
-Used to retrieve a list of robot accounts and the permissions they
-have on the repositories
+Used to retrieve a list of robot accounts and the permissions they have on the repositories
 
 
 */

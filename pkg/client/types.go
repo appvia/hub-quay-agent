@@ -87,6 +87,20 @@ type Robots interface {
 	List(context.Context, string) (*RobotList, error)
 }
 
+// Teams is the contract to the teams API
+type Teams interface {
+	// Create is responsible creating a team
+	Create(context.Context, *Team, *Members) (*Team, error)
+	// Delete is responsible deleting the team
+	Delete(context.Context, string) error
+	// Get is responsible getting a team
+	Get(context.Context, string) (*Team, error)
+	// Has is responsible checking if the team exists
+	Has(context.Context, string) (bool, error)
+	// List is responsible getting a list o teams
+	List(context.Context, string) (*TeamList, error)
+}
+
 // Error is a generic error handed back by the API
 type Error struct {
 	// Status is a status of an error

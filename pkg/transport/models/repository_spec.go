@@ -50,6 +50,9 @@ type RepositorySpec struct {
 	// A collection of tags associated to the image
 	Tags map[string]string `json:"tags,omitempty"`
 
+	// A list of teams which have access to the repository
+	Teams []*Permission `json:"teams"`
+
 	// The docker pull url for this image
 	URL string `json:"url,omitempty"`
 
@@ -68,6 +71,10 @@ func (m *RepositorySpec) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRobots(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTeams(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -121,6 +128,31 @@ func (m *RepositorySpec) validateRobots(formats strfmt.Registry) error {
 			if err := m.Robots[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("robots" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *RepositorySpec) validateTeams(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Teams) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Teams); i++ {
+		if swag.IsZero(m.Teams[i]) { // not required
+			continue
+		}
+
+		if m.Teams[i] != nil {
+			if err := m.Teams[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("teams" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
