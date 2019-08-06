@@ -1,0 +1,9 @@
+{
+  "name": "devs",
+  "namespace": "appvia_hub_dev",
+  "spec": {
+    "members": [
+      "appvia_test"
+    ]
+  }
+}
