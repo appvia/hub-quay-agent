@@ -3,4 +3,4 @@ bin/
 release/
 vendor/
 pkg/quay/
-secret.txt
+secret.env
