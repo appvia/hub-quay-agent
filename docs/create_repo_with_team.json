@@ -9,6 +9,12 @@
         "permission": "write"
       }
     ],
+    "teams": [
+      {
+        "name": "devs",
+        "permission": "write"
+      }
+    ],
     "robots": [],
     "visibility": "public"
   }

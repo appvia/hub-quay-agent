@@ -67,26 +67,6 @@ func (s *serverImpl) Create(ctx context.Context, r *models.Repository) (*models.
 			return newError("removing members", err).model()
 		}
 
-		// @step: get a list of the teams
-		teams, err := s.Repositories().ListTeams(ctx, fullname)
-		if err != nil {
-			return newError("retrieving teams", err).model()
-		}
-		adding, removing = createPermissions(teams, r.Spec.Teams)
-
-		log.WithFields(log.Fields{
-			"adding":   adding,
-			"name":     fullname,
-			"removing": removing,
-		}).Debug("adjusted team permissions on repository")
-
-		if err := s.Repositories().AddTeams(ctx, fullname, adding); err != nil {
-			return newError("adding teams", err).model()
-		}
-		if err := s.Repositories().DeleteTeams(ctx, fullname, removing); err != nil {
-			return newError("removing teams", err).model()
-		}
-
 		// @step: synchronize the robot accounts
 		robots, err := s.Repositories().ListRobots(ctx, fullname)
 		if err != nil {
@@ -105,6 +85,26 @@ func (s *serverImpl) Create(ctx context.Context, r *models.Repository) (*models.
 		}
 		if err := s.Repositories().DeleteRobots(ctx, fullname, removing); err != nil {
 			return newError("removing robots", err).model()
+		}
+
+		// @step: get a list of the teams
+		teams, err := s.Repositories().ListTeams(ctx, fullname)
+		if err != nil {
+			return newError("retrieving teams", err).model()
+		}
+		adding, removing = createPermissions(teams, r.Spec.Teams)
+
+		log.WithFields(log.Fields{
+			"adding":   adding,
+			"name":     fullname,
+			"removing": removing,
+		}).Debug("adjusted team permissions on repository")
+
+		if err := s.Repositories().AddTeams(ctx, fullname, adding); err != nil {
+			return newError("adding teams", err).model()
+		}
+		if err := s.Repositories().DeleteTeams(ctx, fullname, removing); err != nil {
+			return newError("removing teams", err).model()
 		}
 
 		return nil
