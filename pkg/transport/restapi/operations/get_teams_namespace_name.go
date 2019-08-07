@@ -31,43 +31,43 @@ import (
 	models "github.com/appvia/hub-quay-agent/pkg/transport/models"
 )
 
-// GetRobotsNamespaceNameHandlerFunc turns a function with the right signature into a get robots namespace name handler
-type GetRobotsNamespaceNameHandlerFunc func(GetRobotsNamespaceNameParams, *models.Principal) middleware.Responder
+// GetTeamsNamespaceNameHandlerFunc turns a function with the right signature into a get teams namespace name handler
+type GetTeamsNamespaceNameHandlerFunc func(GetTeamsNamespaceNameParams, *models.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetRobotsNamespaceNameHandlerFunc) Handle(params GetRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
+func (fn GetTeamsNamespaceNameHandlerFunc) Handle(params GetTeamsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
-// GetRobotsNamespaceNameHandler interface for that can handle valid get robots namespace name params
-type GetRobotsNamespaceNameHandler interface {
-	Handle(GetRobotsNamespaceNameParams, *models.Principal) middleware.Responder
+// GetTeamsNamespaceNameHandler interface for that can handle valid get teams namespace name params
+type GetTeamsNamespaceNameHandler interface {
+	Handle(GetTeamsNamespaceNameParams, *models.Principal) middleware.Responder
 }
 
-// NewGetRobotsNamespaceName creates a new http.Handler for the get robots namespace name operation
-func NewGetRobotsNamespaceName(ctx *middleware.Context, handler GetRobotsNamespaceNameHandler) *GetRobotsNamespaceName {
-	return &GetRobotsNamespaceName{Context: ctx, Handler: handler}
+// NewGetTeamsNamespaceName creates a new http.Handler for the get teams namespace name operation
+func NewGetTeamsNamespaceName(ctx *middleware.Context, handler GetTeamsNamespaceNameHandler) *GetTeamsNamespaceName {
+	return &GetTeamsNamespaceName{Context: ctx, Handler: handler}
 }
 
-/*GetRobotsNamespaceName swagger:route GET /robots/{namespace}/{name} getRobotsNamespaceName
+/*GetTeamsNamespaceName swagger:route GET /teams/{namespace}/{name} getTeamsNamespaceName
 
-Retrieves a list of robot accounts from within the registry
+Retrieves the team resource
 
-Used to retrieve a list of robot accounts and the permissions they have on the repositories
+Used to retrieve the team resource from Quay
 
 
 */
-type GetRobotsNamespaceName struct {
+type GetTeamsNamespaceName struct {
 	Context *middleware.Context
-	Handler GetRobotsNamespaceNameHandler
+	Handler GetTeamsNamespaceNameHandler
 }
 
-func (o *GetRobotsNamespaceName) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (o *GetTeamsNamespaceName) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
 		r = rCtx
 	}
-	var Params = NewGetRobotsNamespaceNameParams()
+	var Params = NewGetTeamsNamespaceNameParams()
 
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {

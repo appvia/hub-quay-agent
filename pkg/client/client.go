@@ -35,6 +35,8 @@ type clientImpl struct {
 	rc Repositories
 	// roc is the robots client
 	roc Robots
+	// teams is the teams client
+	teams Teams
 }
 
 // New creates a new client
@@ -50,6 +52,7 @@ func New(endpoint, token string) (Client, error) {
 	qc := &clientImpl{endpoint: endpoint, hc: hc, token: token}
 	qc.rc = &repositoryImpl{Client: qc}
 	qc.roc = &robotImpl{Client: qc}
+	qc.teams = &teamsImpl{Client: qc}
 
 	return qc, nil
 }
@@ -59,7 +62,12 @@ func (c *clientImpl) Repositories() Repositories {
 	return c.rc
 }
 
-// Robots returns the repostories client
+// Robots returns the robots client
 func (c *clientImpl) Robots() Robots {
 	return c.roc
+}
+
+// Teams returns the teams client
+func (c *clientImpl) Teams() Teams {
+	return c.teams
 }

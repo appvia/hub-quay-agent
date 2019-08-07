@@ -24,60 +24,118 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/appvia/hub-quay-agent/pkg/transport/models"
 )
 
-// NewGetRobotsNamespaceParams creates a new GetRobotsNamespaceParams object
+// NewPutTeamsNamespaceNameParams creates a new PutTeamsNamespaceNameParams object
 // no default values defined in spec.
-func NewGetRobotsNamespaceParams() GetRobotsNamespaceParams {
+func NewPutTeamsNamespaceNameParams() PutTeamsNamespaceNameParams {
 
-	return GetRobotsNamespaceParams{}
+	return PutTeamsNamespaceNameParams{}
 }
 
-// GetRobotsNamespaceParams contains all the bound params for the get robots namespace operation
+// PutTeamsNamespaceNameParams contains all the bound params for the put teams namespace name operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters GetRobotsNamespace
-type GetRobotsNamespaceParams struct {
+// swagger:parameters PutTeamsNamespaceName
+type PutTeamsNamespaceNameParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*The name of the repository you are acting upon
+
+	  Required: true
+	  In: path
+	*/
+	Name string
 	/*The namespace of the repository
 
 	  Required: true
 	  In: path
 	*/
 	Namespace string
+	/*The definition of a team within the organization
+
+	  Required: true
+	  In: body
+	*/
+	Team *models.Team
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewGetRobotsNamespaceParams() beforehand.
-func (o *GetRobotsNamespaceParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewPutTeamsNamespaceNameParams() beforehand.
+func (o *PutTeamsNamespaceNameParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
+
+	rName, rhkName, _ := route.Params.GetOK("name")
+	if err := o.bindName(rName, rhkName, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	rNamespace, rhkNamespace, _ := route.Params.GetOK("namespace")
 	if err := o.bindNamespace(rNamespace, rhkNamespace, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
+	if runtime.HasBody(r) {
+		defer r.Body.Close()
+		var body models.Team
+		if err := route.Consumer.Consume(r.Body, &body); err != nil {
+			if err == io.EOF {
+				res = append(res, errors.Required("team", "body"))
+			} else {
+				res = append(res, errors.NewParseError("team", "body", "", err))
+			}
+		} else {
+			// validate body object
+			if err := body.Validate(route.Formats); err != nil {
+				res = append(res, err)
+			}
+
+			if len(res) == 0 {
+				o.Team = &body
+			}
+		}
+	} else {
+		res = append(res, errors.Required("team", "body"))
+	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
+// bindName binds and validates parameter Name from path.
+func (o *PutTeamsNamespaceNameParams) bindName(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// Parameter is provided by construction from the route
+
+	o.Name = raw
+
+	return nil
+}
+
 // bindNamespace binds and validates parameter Namespace from path.
-func (o *GetRobotsNamespaceParams) bindNamespace(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *PutTeamsNamespaceNameParams) bindNamespace(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]

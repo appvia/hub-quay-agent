@@ -41,6 +41,8 @@ type Client interface {
 	Repositories() Repositories
 	// Robots returns the robots api
 	Robots() Robots
+	// Teams returns the teams client
+	Teams() Teams
 	// Handle is a generic handler for the http requests
 	Handle(context.Context, string, string, interface{}, interface{}) error
 }
@@ -57,12 +59,12 @@ type Repositories interface {
 	Has(context.Context, string) (bool, error)
 	// List is responsible for listing all the repositories
 	List(context.Context, string) (*RepositoryList, error)
-	// ListPermissons is responsible for listing all the permissions
-	ListPermissions(context.Context, string) ([]*Permission, error)
 	// ListUsers is responsible for getting the user permissions
 	ListUsers(context.Context, string) ([]*Permission, error)
 	// ListRobots is responsible for getting the robot permissions
 	ListRobots(context.Context, string) ([]*Permission, error)
+	// ListTeams is responsibl for getting the team permissions
+	ListTeams(context.Context, string) ([]*Permission, error)
 	// AddUsers is responsible for adding a user
 	AddUsers(context.Context, string, []*Permission) error
 	// DeleteUser removes a user permission
@@ -71,6 +73,10 @@ type Repositories interface {
 	AddRobots(context.Context, string, []*Permission) error
 	// DeleteRobots removes a user permission
 	DeleteRobots(context.Context, string, []*Permission) error
+	// AddTeams is responsible for adding a robot
+	AddTeams(context.Context, string, []*Permission) error
+	// DeleteTeams removes a user permission
+	DeleteTeams(context.Context, string, []*Permission) error
 }
 
 // Robots is the contract to the robots
@@ -85,6 +91,22 @@ type Robots interface {
 	Has(context.Context, string) (bool, error)
 	// List is responsible getting a list o robots
 	List(context.Context, string) (*RobotList, error)
+}
+
+// Teams is the contract to the teams API
+type Teams interface {
+	// Create is responsible creating a team
+	Create(context.Context, *Team, *Members) (*Team, error)
+	// Delete is responsible deleting the team
+	Delete(context.Context, string) error
+	// Get is responsible getting a team
+	Get(context.Context, string) (*Team, error)
+	// Has is responsible checking if the team exists
+	Has(context.Context, string) (bool, error)
+	// List is responsible getting a list o teams
+	List(context.Context, string) (*TeamList, error)
+	// ListMembers is responsible for listing the members in a team
+	ListMembers(context.Context, string) (*Members, error)
 }
 
 // Error is a generic error handed back by the API

@@ -63,6 +63,9 @@ func NewHubQuayAgentAPI(spec *loads.Document) *HubQuayAgentAPI {
 		DeleteRobotsNamespaceNameHandler: DeleteRobotsNamespaceNameHandlerFunc(func(params DeleteRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation DeleteRobotsNamespaceName has not yet been implemented")
 		}),
+		DeleteTeamsNamespaceNameHandler: DeleteTeamsNamespaceNameHandlerFunc(func(params DeleteTeamsNamespaceNameParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation DeleteTeamsNamespaceName has not yet been implemented")
+		}),
 		GetAliveHandler: GetAliveHandlerFunc(func(params GetAliveParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetAlive has not yet been implemented")
 		}),
@@ -81,11 +84,20 @@ func NewHubQuayAgentAPI(spec *loads.Document) *HubQuayAgentAPI {
 		GetRobotsNamespaceNameHandler: GetRobotsNamespaceNameHandlerFunc(func(params GetRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation GetRobotsNamespaceName has not yet been implemented")
 		}),
+		GetTeamsNamespaceHandler: GetTeamsNamespaceHandlerFunc(func(params GetTeamsNamespaceParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation GetTeamsNamespace has not yet been implemented")
+		}),
+		GetTeamsNamespaceNameHandler: GetTeamsNamespaceNameHandlerFunc(func(params GetTeamsNamespaceNameParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation GetTeamsNamespaceName has not yet been implemented")
+		}),
 		PutRegistryNamespaceNameHandler: PutRegistryNamespaceNameHandlerFunc(func(params PutRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation PutRegistryNamespaceName has not yet been implemented")
 		}),
 		PutRobotsNamespaceNameHandler: PutRobotsNamespaceNameHandlerFunc(func(params PutRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation PutRobotsNamespaceName has not yet been implemented")
+		}),
+		PutTeamsNamespaceNameHandler: PutTeamsNamespaceNameHandlerFunc(func(params PutTeamsNamespaceNameParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation PutTeamsNamespaceName has not yet been implemented")
 		}),
 
 		// Applies when the "Authorization" header is set
@@ -137,6 +149,8 @@ type HubQuayAgentAPI struct {
 	DeleteRegistryNamespaceNameHandler DeleteRegistryNamespaceNameHandler
 	// DeleteRobotsNamespaceNameHandler sets the operation handler for the delete robots namespace name operation
 	DeleteRobotsNamespaceNameHandler DeleteRobotsNamespaceNameHandler
+	// DeleteTeamsNamespaceNameHandler sets the operation handler for the delete teams namespace name operation
+	DeleteTeamsNamespaceNameHandler DeleteTeamsNamespaceNameHandler
 	// GetAliveHandler sets the operation handler for the get alive operation
 	GetAliveHandler GetAliveHandler
 	// GetHealthzNamespaceHandler sets the operation handler for the get healthz namespace operation
@@ -149,10 +163,16 @@ type HubQuayAgentAPI struct {
 	GetRobotsNamespaceHandler GetRobotsNamespaceHandler
 	// GetRobotsNamespaceNameHandler sets the operation handler for the get robots namespace name operation
 	GetRobotsNamespaceNameHandler GetRobotsNamespaceNameHandler
+	// GetTeamsNamespaceHandler sets the operation handler for the get teams namespace operation
+	GetTeamsNamespaceHandler GetTeamsNamespaceHandler
+	// GetTeamsNamespaceNameHandler sets the operation handler for the get teams namespace name operation
+	GetTeamsNamespaceNameHandler GetTeamsNamespaceNameHandler
 	// PutRegistryNamespaceNameHandler sets the operation handler for the put registry namespace name operation
 	PutRegistryNamespaceNameHandler PutRegistryNamespaceNameHandler
 	// PutRobotsNamespaceNameHandler sets the operation handler for the put robots namespace name operation
 	PutRobotsNamespaceNameHandler PutRobotsNamespaceNameHandler
+	// PutTeamsNamespaceNameHandler sets the operation handler for the put teams namespace name operation
+	PutTeamsNamespaceNameHandler PutTeamsNamespaceNameHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -228,6 +248,10 @@ func (o *HubQuayAgentAPI) Validate() error {
 		unregistered = append(unregistered, "DeleteRobotsNamespaceNameHandler")
 	}
 
+	if o.DeleteTeamsNamespaceNameHandler == nil {
+		unregistered = append(unregistered, "DeleteTeamsNamespaceNameHandler")
+	}
+
 	if o.GetAliveHandler == nil {
 		unregistered = append(unregistered, "GetAliveHandler")
 	}
@@ -252,12 +276,24 @@ func (o *HubQuayAgentAPI) Validate() error {
 		unregistered = append(unregistered, "GetRobotsNamespaceNameHandler")
 	}
 
+	if o.GetTeamsNamespaceHandler == nil {
+		unregistered = append(unregistered, "GetTeamsNamespaceHandler")
+	}
+
+	if o.GetTeamsNamespaceNameHandler == nil {
+		unregistered = append(unregistered, "GetTeamsNamespaceNameHandler")
+	}
+
 	if o.PutRegistryNamespaceNameHandler == nil {
 		unregistered = append(unregistered, "PutRegistryNamespaceNameHandler")
 	}
 
 	if o.PutRobotsNamespaceNameHandler == nil {
 		unregistered = append(unregistered, "PutRobotsNamespaceNameHandler")
+	}
+
+	if o.PutTeamsNamespaceNameHandler == nil {
+		unregistered = append(unregistered, "PutTeamsNamespaceNameHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -380,6 +416,11 @@ func (o *HubQuayAgentAPI) initHandlerCache() {
 	}
 	o.handlers["DELETE"]["/robots/{namespace}/{name}"] = NewDeleteRobotsNamespaceName(o.context, o.DeleteRobotsNamespaceNameHandler)
 
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/teams/{namespace}/{name}"] = NewDeleteTeamsNamespaceName(o.context, o.DeleteTeamsNamespaceNameHandler)
+
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -410,6 +451,16 @@ func (o *HubQuayAgentAPI) initHandlerCache() {
 	}
 	o.handlers["GET"]["/robots/{namespace}/{name}"] = NewGetRobotsNamespaceName(o.context, o.GetRobotsNamespaceNameHandler)
 
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/teams/{namespace}"] = NewGetTeamsNamespace(o.context, o.GetTeamsNamespaceHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/teams/{namespace}/{name}"] = NewGetTeamsNamespaceName(o.context, o.GetTeamsNamespaceNameHandler)
+
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
@@ -419,6 +470,11 @@ func (o *HubQuayAgentAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/robots/{namespace}/{name}"] = NewPutRobotsNamespaceName(o.context, o.PutRobotsNamespaceNameHandler)
+
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/teams/{namespace}/{name}"] = NewPutTeamsNamespaceName(o.context, o.PutTeamsNamespaceNameHandler)
 
 }
 

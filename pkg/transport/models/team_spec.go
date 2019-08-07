@@ -26,50 +26,24 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
-// APIError Is a generic error event returned when the we have an internal error
-//
-// swagger:model APIError
-type APIError struct {
+// TeamSpec Is the specification of the configuration of the resource
+// swagger:model TeamSpec
+type TeamSpec struct {
 
-	// Additional details related to the error
-	Detail string `json:"detail,omitempty"`
-
-	// A human readable description used to define what error has occured
-	//
-	// Required: true
-	Reason *string `json:"reason"`
+	// members
+	Members []string `json:"members"`
 }
 
-// Validate validates this API error
-func (m *APIError) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateReason(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *APIError) validateReason(formats strfmt.Registry) error {
-
-	if err := validate.Required("reason", "body", m.Reason); err != nil {
-		return err
-	}
-
+// Validate validates this team spec
+func (m *TeamSpec) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *APIError) MarshalBinary() ([]byte, error) {
+func (m *TeamSpec) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -77,8 +51,8 @@ func (m *APIError) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *APIError) UnmarshalBinary(b []byte) error {
-	var res APIError
+func (m *TeamSpec) UnmarshalBinary(b []byte) error {
+	var res TeamSpec
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

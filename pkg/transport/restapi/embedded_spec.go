@@ -61,7 +61,7 @@ func init() {
     "/alive": {
       "get": {
         "security": [],
-        "description": "Returns health and status information of the API daemon and\nrelated components such as the runtime.\n",
+        "description": "Returns health and status information of the API daemon and related components such as the runtime.\n",
         "summary": "Get health of Agent",
         "responses": {
           "200": {
@@ -114,7 +114,7 @@ func init() {
     "/registry/{namespace}/{name}": {
       "get": {
         "description": "Used to retrieve a repository from the registry\n",
-        "summary": "Retrieves a list of respositories witin the registry",
+        "summary": "Retrieves the configuration of a repository in the registry",
         "parameters": [
           {
             "$ref": "#/parameters/namespace"
@@ -181,7 +181,7 @@ func init() {
     },
     "/robots/{namespace}": {
       "get": {
-        "description": "Used to retrieve a list of robot accounts and the permissions they\nhave on the repositories\n",
+        "description": "Used to retrieve a list of robot accounts and the permissions they have on the repositories\n",
         "summary": "Retrieves a list of robot accounts from within the registry",
         "parameters": [
           {
@@ -200,7 +200,7 @@ func init() {
     },
     "/robots/{namespace}/{name}": {
       "get": {
-        "description": "Used to retrieve a list of robot accounts and the permissions they\nhave on the repositories\n",
+        "description": "Used to retrieve a list of robot accounts and the permissions they have on the repositories\n",
         "summary": "Retrieves a list of robot accounts from within the registry",
         "parameters": [
           {
@@ -223,7 +223,7 @@ func init() {
         }
       },
       "put": {
-        "description": "Used to retrieve a list of robot accounts and the permissions they\nhave on the repositories\n",
+        "description": "Used to retrieve a list of robot accounts and the permissions they have on the repositories\n",
         "summary": "Retrieves a list of robot accounts from within the registry",
         "parameters": [
           {
@@ -265,11 +265,95 @@ func init() {
           }
         }
       }
+    },
+    "/teams/{namespace}": {
+      "get": {
+        "description": "Used to retrieve a complete list of all teams in the organization\n",
+        "summary": "Retrieves a list of teams in the organization",
+        "parameters": [
+          {
+            "$ref": "#/parameters/namespace"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/teams"
+          },
+          "default": {
+            "$ref": "#/responses/apierror"
+          }
+        }
+      }
+    },
+    "/teams/{namespace}/{name}": {
+      "get": {
+        "description": "Used to retrieve the team resource from Quay\n",
+        "summary": "Retrieves the team resource",
+        "parameters": [
+          {
+            "$ref": "#/parameters/namespace"
+          },
+          {
+            "$ref": "#/parameters/name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/team"
+          },
+          "default": {
+            "$ref": "#/responses/apierror"
+          }
+        }
+      },
+      "put": {
+        "description": "Used to perform updates or creations of teams in Quay\n",
+        "summary": "Update the team membership",
+        "parameters": [
+          {
+            "$ref": "#/parameters/namespace"
+          },
+          {
+            "$ref": "#/parameters/name"
+          },
+          {
+            "$ref": "#/parameters/team"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/team"
+          },
+          "default": {
+            "$ref": "#/responses/apierror"
+          }
+        }
+      },
+      "delete": {
+        "description": "Used to delete a team from Quay\n",
+        "summary": "Delete a team from Quay",
+        "parameters": [
+          {
+            "$ref": "#/parameters/namespace"
+          },
+          {
+            "$ref": "#/parameters/name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the team from the organization"
+          },
+          "default": {
+            "$ref": "#/responses/apierror"
+          }
+        }
+      }
     }
   },
   "definitions": {
     "APIError": {
-      "description": "Is a generic error event returned when the we have an internal error",
+      "description": "Is a generic error event returned when the we have an internal error\n",
       "type": "object",
       "required": [
         "reason"
@@ -280,7 +364,7 @@ func init() {
           "type": "string"
         },
         "reason": {
-          "description": "A human readable description used to define what error has occured",
+          "description": "A human readable description used to define what error has occured\n",
           "type": "string"
         }
       }
@@ -298,11 +382,11 @@ func init() {
           "type": "string"
         },
         "namespace": {
-          "description": "A namespace for the resource, which in this case maps on the organization",
+          "description": "A namespace for the resource, which in this case maps on the organization\n",
           "type": "string"
         },
         "signature": {
-          "description": "A cryptographic signature used to verify the request payload",
+          "description": "A cryptographic signature used to verify the request payload\n",
           "type": "string"
         }
       }
@@ -320,7 +404,7 @@ func init() {
           "type": "string"
         },
         "permission": {
-          "description": "The level of access to be given to the identify (team, memeber or robot)",
+          "description": "The level of access to be given to the identify (team, member or robot)\n",
           "type": "string",
           "enum": [
             "admin",
@@ -398,6 +482,13 @@ func init() {
           "type": "object",
           "additionalProperties": {
             "type": "string"
+          }
+        },
+        "teams": {
+          "description": "A list of teams which have access to the repository",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Permission"
           }
         },
         "url": {
@@ -480,31 +571,77 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "Team": {
+      "description": "Is the team resources i.e collection of members",
+      "type": "object",
+      "required": [
+        "spec"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        }
+      ],
+      "properties": {
+        "spec": {
+          "$ref": "#/definitions/TeamSpec"
+        }
+      }
+    },
+    "TeamList": {
+      "description": "A collection of teams in the organization",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        }
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Team"
+          }
+        }
+      }
+    },
+    "TeamSpec": {
+      "description": "Is the specification of the configuration of the resource",
+      "type": "object",
+      "properties": {
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     }
   },
   "parameters": {
     "authinfo": {
       "type": "string",
-      "description": "An authentication context to speak to the backend of behalf of the Hub",
+      "description": "An authentication context to speak to the backend of behalf of the Hub\n",
       "name": "X-AuthInfo",
       "in": "header"
     },
     "name": {
       "type": "string",
-      "description": "The name of the repository you are acting upon",
+      "description": "The name of the repository you are acting upon\n",
       "name": "name",
       "in": "path",
       "required": true
     },
     "namespace": {
       "type": "string",
-      "description": "The namespace of the repostory",
+      "description": "The namespace of the repository\n",
       "name": "namespace",
       "in": "path",
       "required": true
     },
     "repository": {
-      "description": "The repository definition we are acting on",
+      "description": "The repository definition we are acting on\n",
       "name": "repository",
       "in": "body",
       "required": true,
@@ -513,12 +650,21 @@ func init() {
       }
     },
     "robot": {
-      "description": "The definition of a robot account within the registry",
+      "description": "The definition of a robot account within the registry\n",
       "name": "robot",
       "in": "body",
       "required": true,
       "schema": {
         "$ref": "#/definitions/Robot"
+      }
+    },
+    "team": {
+      "description": "The definition of a team within the organization\n",
+      "name": "team",
+      "in": "body",
+      "required": true,
+      "schema": {
+        "$ref": "#/definitions/Team"
       }
     }
   },
@@ -554,6 +700,18 @@ func init() {
       "description": "Returning a list of robot accounts",
       "schema": {
         "$ref": "#/definitions/RobotList"
+      }
+    },
+    "team": {
+      "description": "The specification of a team in the organization",
+      "schema": {
+        "$ref": "#/definitions/Team"
+      }
+    },
+    "teams": {
+      "description": "A collection teams found in the organization",
+      "schema": {
+        "$ref": "#/definitions/TeamList"
       }
     }
   },
@@ -596,7 +754,7 @@ func init() {
     "/alive": {
       "get": {
         "security": [],
-        "description": "Returns health and status information of the API daemon and\nrelated components such as the runtime.\n",
+        "description": "Returns health and status information of the API daemon and related components such as the runtime.\n",
         "summary": "Get health of Agent",
         "responses": {
           "200": {
@@ -618,7 +776,7 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "The namespace of the repostory",
+            "description": "The namespace of the repository\n",
             "name": "namespace",
             "in": "path",
             "required": true
@@ -644,7 +802,7 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "The namespace of the repostory",
+            "description": "The namespace of the repository\n",
             "name": "namespace",
             "in": "path",
             "required": true
@@ -669,18 +827,18 @@ func init() {
     "/registry/{namespace}/{name}": {
       "get": {
         "description": "Used to retrieve a repository from the registry\n",
-        "summary": "Retrieves a list of respositories witin the registry",
+        "summary": "Retrieves the configuration of a repository in the registry",
         "parameters": [
           {
             "type": "string",
-            "description": "The namespace of the repostory",
+            "description": "The namespace of the repository\n",
             "name": "namespace",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "The name of the repository you are acting upon",
+            "description": "The name of the repository you are acting upon\n",
             "name": "name",
             "in": "path",
             "required": true
@@ -713,20 +871,20 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "The namespace of the repostory",
+            "description": "The namespace of the repository\n",
             "name": "namespace",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "The name of the repository you are acting upon",
+            "description": "The name of the repository you are acting upon\n",
             "name": "name",
             "in": "path",
             "required": true
           },
           {
-            "description": "The repository definition we are acting on",
+            "description": "The repository definition we are acting on\n",
             "name": "repository",
             "in": "body",
             "required": true,
@@ -756,14 +914,14 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "The namespace of the repostory",
+            "description": "The namespace of the repository\n",
             "name": "namespace",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "The name of the repository you are acting upon",
+            "description": "The name of the repository you are acting upon\n",
             "name": "name",
             "in": "path",
             "required": true
@@ -784,12 +942,12 @@ func init() {
     },
     "/robots/{namespace}": {
       "get": {
-        "description": "Used to retrieve a list of robot accounts and the permissions they\nhave on the repositories\n",
+        "description": "Used to retrieve a list of robot accounts and the permissions they have on the repositories\n",
         "summary": "Retrieves a list of robot accounts from within the registry",
         "parameters": [
           {
             "type": "string",
-            "description": "The namespace of the repostory",
+            "description": "The namespace of the repository\n",
             "name": "namespace",
             "in": "path",
             "required": true
@@ -813,19 +971,19 @@ func init() {
     },
     "/robots/{namespace}/{name}": {
       "get": {
-        "description": "Used to retrieve a list of robot accounts and the permissions they\nhave on the repositories\n",
+        "description": "Used to retrieve a list of robot accounts and the permissions they have on the repositories\n",
         "summary": "Retrieves a list of robot accounts from within the registry",
         "parameters": [
           {
             "type": "string",
-            "description": "The namespace of the repostory",
+            "description": "The namespace of the repository\n",
             "name": "namespace",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "The name of the repository you are acting upon",
+            "description": "The name of the repository you are acting upon\n",
             "name": "name",
             "in": "path",
             "required": true
@@ -853,25 +1011,25 @@ func init() {
         }
       },
       "put": {
-        "description": "Used to retrieve a list of robot accounts and the permissions they\nhave on the repositories\n",
+        "description": "Used to retrieve a list of robot accounts and the permissions they have on the repositories\n",
         "summary": "Retrieves a list of robot accounts from within the registry",
         "parameters": [
           {
             "type": "string",
-            "description": "The namespace of the repostory",
+            "description": "The namespace of the repository\n",
             "name": "namespace",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "The name of the repository you are acting upon",
+            "description": "The name of the repository you are acting upon\n",
             "name": "name",
             "in": "path",
             "required": true
           },
           {
-            "description": "The definition of a robot account within the registry",
+            "description": "The definition of a robot account within the registry\n",
             "name": "robot",
             "in": "body",
             "required": true,
@@ -901,14 +1059,14 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "The namespace of the repostory",
+            "description": "The namespace of the repository\n",
             "name": "namespace",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "The name of the repository you are acting upon",
+            "description": "The name of the repository you are acting upon\n",
             "name": "name",
             "in": "path",
             "required": true
@@ -929,11 +1087,150 @@ func init() {
           }
         }
       }
+    },
+    "/teams/{namespace}": {
+      "get": {
+        "description": "Used to retrieve a complete list of all teams in the organization\n",
+        "summary": "Retrieves a list of teams in the organization",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The namespace of the repository\n",
+            "name": "namespace",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A collection teams found in the organization",
+            "schema": {
+              "$ref": "#/definitions/TeamList"
+            }
+          },
+          "default": {
+            "description": "A generic erorr returned by the api",
+            "schema": {
+              "$ref": "#/definitions/APIError"
+            }
+          }
+        }
+      }
+    },
+    "/teams/{namespace}/{name}": {
+      "get": {
+        "description": "Used to retrieve the team resource from Quay\n",
+        "summary": "Retrieves the team resource",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The namespace of the repository\n",
+            "name": "namespace",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The name of the repository you are acting upon\n",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The specification of a team in the organization",
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          },
+          "default": {
+            "description": "A generic erorr returned by the api",
+            "schema": {
+              "$ref": "#/definitions/APIError"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Used to perform updates or creations of teams in Quay\n",
+        "summary": "Update the team membership",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The namespace of the repository\n",
+            "name": "namespace",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The name of the repository you are acting upon\n",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "The definition of a team within the organization\n",
+            "name": "team",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The specification of a team in the organization",
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          },
+          "default": {
+            "description": "A generic erorr returned by the api",
+            "schema": {
+              "$ref": "#/definitions/APIError"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Used to delete a team from Quay\n",
+        "summary": "Delete a team from Quay",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The namespace of the repository\n",
+            "name": "namespace",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The name of the repository you are acting upon\n",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the team from the organization"
+          },
+          "default": {
+            "description": "A generic erorr returned by the api",
+            "schema": {
+              "$ref": "#/definitions/APIError"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
     "APIError": {
-      "description": "Is a generic error event returned when the we have an internal error",
+      "description": "Is a generic error event returned when the we have an internal error\n",
       "type": "object",
       "required": [
         "reason"
@@ -944,7 +1241,7 @@ func init() {
           "type": "string"
         },
         "reason": {
-          "description": "A human readable description used to define what error has occured",
+          "description": "A human readable description used to define what error has occured\n",
           "type": "string"
         }
       }
@@ -962,11 +1259,11 @@ func init() {
           "type": "string"
         },
         "namespace": {
-          "description": "A namespace for the resource, which in this case maps on the organization",
+          "description": "A namespace for the resource, which in this case maps on the organization\n",
           "type": "string"
         },
         "signature": {
-          "description": "A cryptographic signature used to verify the request payload",
+          "description": "A cryptographic signature used to verify the request payload\n",
           "type": "string"
         }
       }
@@ -984,7 +1281,7 @@ func init() {
           "type": "string"
         },
         "permission": {
-          "description": "The level of access to be given to the identify (team, memeber or robot)",
+          "description": "The level of access to be given to the identify (team, member or robot)\n",
           "type": "string",
           "enum": [
             "admin",
@@ -1062,6 +1359,13 @@ func init() {
           "type": "object",
           "additionalProperties": {
             "type": "string"
+          }
+        },
+        "teams": {
+          "description": "A list of teams which have access to the repository",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Permission"
           }
         },
         "url": {
@@ -1144,31 +1448,77 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "Team": {
+      "description": "Is the team resources i.e collection of members",
+      "type": "object",
+      "required": [
+        "spec"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        }
+      ],
+      "properties": {
+        "spec": {
+          "$ref": "#/definitions/TeamSpec"
+        }
+      }
+    },
+    "TeamList": {
+      "description": "A collection of teams in the organization",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        }
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Team"
+          }
+        }
+      }
+    },
+    "TeamSpec": {
+      "description": "Is the specification of the configuration of the resource",
+      "type": "object",
+      "properties": {
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     }
   },
   "parameters": {
     "authinfo": {
       "type": "string",
-      "description": "An authentication context to speak to the backend of behalf of the Hub",
+      "description": "An authentication context to speak to the backend of behalf of the Hub\n",
       "name": "X-AuthInfo",
       "in": "header"
     },
     "name": {
       "type": "string",
-      "description": "The name of the repository you are acting upon",
+      "description": "The name of the repository you are acting upon\n",
       "name": "name",
       "in": "path",
       "required": true
     },
     "namespace": {
       "type": "string",
-      "description": "The namespace of the repostory",
+      "description": "The namespace of the repository\n",
       "name": "namespace",
       "in": "path",
       "required": true
     },
     "repository": {
-      "description": "The repository definition we are acting on",
+      "description": "The repository definition we are acting on\n",
       "name": "repository",
       "in": "body",
       "required": true,
@@ -1177,12 +1527,21 @@ func init() {
       }
     },
     "robot": {
-      "description": "The definition of a robot account within the registry",
+      "description": "The definition of a robot account within the registry\n",
       "name": "robot",
       "in": "body",
       "required": true,
       "schema": {
         "$ref": "#/definitions/Robot"
+      }
+    },
+    "team": {
+      "description": "The definition of a team within the organization\n",
+      "name": "team",
+      "in": "body",
+      "required": true,
+      "schema": {
+        "$ref": "#/definitions/Team"
       }
     }
   },
@@ -1218,6 +1577,18 @@ func init() {
       "description": "Returning a list of robot accounts",
       "schema": {
         "$ref": "#/definitions/RobotList"
+      }
+    },
+    "team": {
+      "description": "The specification of a team in the organization",
+      "schema": {
+        "$ref": "#/definitions/Team"
+      }
+    },
+    "teams": {
+      "description": "A collection teams found in the organization",
+      "schema": {
+        "$ref": "#/definitions/TeamList"
       }
     }
   },

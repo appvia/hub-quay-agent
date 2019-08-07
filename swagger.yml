@@ -17,7 +17,7 @@ securityDefinitions:
     name: Authorization
 security:
   - apikey: []
-basePath: "/api/v1beta"
+basePath: '/api/v1beta'
 consumes:
   - application/json
 produces:
@@ -27,65 +27,86 @@ responses:
   apierror:
     description: A generic erorr returned by the api
     schema:
-      "$ref": "#/definitions/APIError"
+      '$ref': '#/definitions/APIError'
   notfound:
     description: The resource does not exist
   robot:
     description: Returning the status of a robot account
     schema:
-      "$ref": "#/definitions/Robot"
+      '$ref': '#/definitions/Robot'
   robots:
     description: Returning a list of robot accounts
     schema:
-      "$ref": "#/definitions/RobotList"
+      '$ref': '#/definitions/RobotList'
   repository:
     description: The specification of a repository in the registry
     schema:
-      "$ref": "#/definitions/Repository"
+      '$ref': '#/definitions/Repository'
   repositories:
     description: A collection repositories found in the registry
     schema:
-      "$ref": "#/definitions/RepositoryList"
+      '$ref': '#/definitions/RepositoryList'
+  team:
+    description: The specification of a team in the organization
+    schema:
+      '$ref': '#/definitions/Team'
+  teams:
+    description: A collection teams found in the organization
+    schema:
+      '$ref': '#/definitions/TeamList'
 
 parameters:
   authinfo:
     name: X-AuthInfo
-    description: An authentication context to speak to the backend of behalf of the Hub
+    description: >
+      An authentication context to speak to the backend of behalf of the Hub
     in: header
     type: string
     required: false
   name:
     name: name
-    description: The name of the repository you are acting upon
+    description: >
+      The name of the repository you are acting upon
     in: path
     type: string
     required: true
   namespace:
     name: namespace
-    description: The namespace of the repostory
+    description: >
+      The namespace of the repository
     in: path
     type: string
     required: true
   repository:
     name: repository
-    description: The repository definition we are acting on
+    description: >
+      The repository definition we are acting on
     in: body
     schema:
-      "$ref": "#/definitions/Repository"
+      '$ref': '#/definitions/Repository'
     required: true
   robot:
     name: robot
-    description: The definition of a robot account within the registry
+    description: >
+      The definition of a robot account within the registry
     in: body
     schema:
-      "$ref": "#/definitions/Robot"
+      '$ref': '#/definitions/Robot'
+    required: true
+  team:
+    name: team
+    description: >
+      The definition of a team within the organization
+    in: body
+    schema:
+      '$ref': '#/definitions/Team'
     required: true
 
 paths:
-  "/alive":
+  '/alive':
     get:
       summary: Get health of Agent
-      description: |
+      description: >
         Returns health and status information of the API daemon and
         related components such as the runtime.
       security: []
@@ -93,143 +114,200 @@ paths:
         '200':
           description: Success
         default:
-          "$ref": "#/responses/apierror"
+          '$ref': '#/responses/apierror'
 
-  "/healthz/{namespace}":
+  '/healthz/{namespace}':
     get:
       summary: Perform an intelligent health check on the agent
-      description: |
+      description: >
         Request the agent for validate the health of the agent
       parameters:
-        - "$ref": "#/parameters/namespace"
+        - '$ref': '#/parameters/namespace'
       responses:
         '200':
           description: Success
         default:
-          "$ref": "#/responses/apierror"
+          '$ref': '#/responses/apierror'
 
-  "/robots/{namespace}":
+  '/robots/{namespace}':
     get:
       summary: Retrieves a list of robot accounts from within the registry
-      description: |
+      description: >
         Used to retrieve a list of robot accounts and the permissions they
         have on the repositories
       parameters:
-        - "$ref": "#/parameters/namespace"
+        - '$ref': '#/parameters/namespace'
       responses:
         '200':
-          "$ref": "#/responses/robots"
+          '$ref': '#/responses/robots'
         default:
-          "$ref": "#/responses/apierror"
+          '$ref': '#/responses/apierror'
 
-  "/robots/{namespace}/{name}":
+  '/robots/{namespace}/{name}':
     get:
       summary: Retrieves a list of robot accounts from within the registry
-      description: |
+      description: >
         Used to retrieve a list of robot accounts and the permissions they
         have on the repositories
       parameters:
-        - "$ref": "#/parameters/namespace"
-        - "$ref": "#/parameters/name"
+        - '$ref': '#/parameters/namespace'
+        - '$ref': '#/parameters/name'
       responses:
         '200':
-          "$ref": "#/responses/robot"
+          '$ref': '#/responses/robot'
         '404':
-          "$ref": "#/responses/apierror"
+          '$ref': '#/responses/apierror'
         default:
-          "$ref": "#/responses/apierror"
+          '$ref': '#/responses/apierror'
 
     put:
       summary: Retrieves a list of robot accounts from within the registry
-      description: |
+      description: >
         Used to retrieve a list of robot accounts and the permissions they
         have on the repositories
       parameters:
-        - "$ref": "#/parameters/namespace"
-        - "$ref": "#/parameters/name"
-        - "$ref": "#/parameters/robot"
+        - '$ref': '#/parameters/namespace'
+        - '$ref': '#/parameters/name'
+        - '$ref': '#/parameters/robot'
       responses:
         '200':
-          "$ref": "#/responses/robot"
+          '$ref': '#/responses/robot'
         default:
-          "$ref": "#/responses/apierror"
+          '$ref': '#/responses/apierror'
 
     delete:
       summary: Deletes a robot account from the organization
-      description: |
+      description: >
         Used to delete a robot account and all permissions from a robot account
       parameters:
-        - "$ref": "#/parameters/namespace"
-        - "$ref": "#/parameters/name"
+        - '$ref': '#/parameters/namespace'
+        - '$ref': '#/parameters/name'
       responses:
         '200':
-          "$ref": "#/responses/robot"
+          '$ref': '#/responses/robot'
         default:
-          "$ref": "#/responses/apierror"
+          '$ref': '#/responses/apierror'
 
-  "/registry/{namespace}":
+  '/registry/{namespace}':
     get:
       summary: Retrieves a list of respositories witin the registry
-      description: |
+      description: >
         Used to retrieve a repository from the registry
       parameters:
-        - "$ref": "#/parameters/namespace"
+        - '$ref': '#/parameters/namespace'
       responses:
         '200':
-          "$ref": "#/responses/repositories"
+          '$ref': '#/responses/repositories'
         default:
-          "$ref": "#/responses/apierror"
+          '$ref': '#/responses/apierror'
 
-  "/registry/{namespace}/{name}":
+  '/registry/{namespace}/{name}':
     get:
-      summary: Retrieves a list of respositories witin the registry
-      description: |
+      summary: Retrieves the configuration of a repository in the registry
+      description: >
         Used to retrieve a repository from the registry
       parameters:
-        - "$ref": "#/parameters/namespace"
-        - "$ref": "#/parameters/name"
+        - '$ref': '#/parameters/namespace'
+        - '$ref': '#/parameters/name'
       responses:
         '200':
-          "$ref": "#/responses/repository"
+          '$ref': '#/responses/repository'
         '404':
-          "$ref": "#/responses/apierror"
+          '$ref': '#/responses/apierror'
         default:
-          "$ref": "#/responses/apierror"
+          '$ref': '#/responses/apierror'
 
     put:
       summary: Create a new repository within Quay
-      description: |
+      description: >
         Used to create a new repository or update a repository in the registry
       parameters:
-        - "$ref": "#/parameters/namespace"
-        - "$ref": "#/parameters/name"
-        - "$ref": "#/parameters/repository"
+        - '$ref': '#/parameters/namespace'
+        - '$ref': '#/parameters/name'
+        - '$ref': '#/parameters/repository'
       responses:
         '200':
-          "$ref": "#/responses/repository"
+          '$ref': '#/responses/repository'
         default:
-          "$ref": "#/responses/apierror"
+          '$ref': '#/responses/apierror'
 
     delete:
       summary: Responsible for deleting a repository
-      description: |
-        Deletes the repository, the associated user policy and all images associated
+      description: >
+        Deletes the repository, the associated user policy and all images
+        associated
       parameters:
-        - "$ref": "#/parameters/namespace"
-        - "$ref": "#/parameters/name"
+        - '$ref': '#/parameters/namespace'
+        - '$ref': '#/parameters/name'
       responses:
         '200':
           description: Successfully deleted the repository from the organization
         default:
-          "$ref": "#/responses/apierror"
+          '$ref': '#/responses/apierror'
+
+  '/teams/{namespace}':
+    get:
+      summary: Retrieves a list of teams in the organization
+      description: >
+        Used to retrieve a complete list of all teams in the organization
+      parameters:
+        - '$ref': '#/parameters/namespace'
+      responses:
+        '200':
+          '$ref': '#/responses/teams'
+        default:
+          '$ref': '#/responses/apierror'
+
+  '/teams/{namespace}/{name}':
+    get:
+      summary: Retrieves the team resource
+      description: >
+        Used to retrieve the team resource from Quay
+      parameters:
+        - '$ref': '#/parameters/namespace'
+        - '$ref': '#/parameters/name'
+      responses:
+        '200':
+          '$ref': '#/responses/team'
+        default:
+          '$ref': '#/responses/apierror'
+
+    put:
+      summary: Update the team membership
+      description: >
+        Used to perform updates or creations of teams in Quay
+      parameters:
+        - '$ref': '#/parameters/namespace'
+        - '$ref': '#/parameters/name'
+        - '$ref': '#/parameters/team'
+      responses:
+        '200':
+          '$ref': '#/responses/team'
+        default:
+          '$ref': '#/responses/apierror'
+
+    delete:
+      summary: Delete a team from Quay
+      description: >
+        Used to delete a team from Quay
+      parameters:
+        - '$ref': '#/parameters/namespace'
+        - '$ref': '#/parameters/name'
+      responses:
+        '200':
+          description: Successfully deleted the team from the organization
+        default:
+          '$ref': '#/responses/apierror'
 
 definitions:
   APIError:
-    description: Is a generic error event returned when the we have an internal error
+    description: >
+      Is a generic error event returned when the we have an internal error
     type: object
     properties:
       reason:
-        description: A human readable description used to define what error has occured
+        description: >
+          A human readable description used to define what error has occured
         type: string
       detail:
         description: Additional details related to the error
@@ -245,10 +323,13 @@ definitions:
         description: A globally unique human readible resource name
         type: string
       namespace:
-        description: A namespace for the resource, which in this case maps on the organization
+        description: >
+          A namespace for the resource, which in this case maps on the
+          organization
         type: string
       signature:
-        description: A cryptographic signature used to verify the request payload
+        description: >
+          A cryptographic signature used to verify the request payload
         type: string
     required:
       - name
@@ -262,7 +343,9 @@ definitions:
         description: The identifier for the identity applying the permission to
         type: string
       permission:
-        description: The level of access to be given to the identify (team, memeber or robot)
+        description: >
+          The level of access to be given to the identify (team, member or
+          robot)
         type: string
         enum:
           - admin
@@ -289,12 +372,17 @@ definitions:
         description: A list of members whom has access to the repository
         type: array
         items:
-          "$ref": "#/definitions/Permission"
+          '$ref': '#/definitions/Permission'
+      teams:
+        description: A list of teams which have access to the repository
+        type: array
+        items:
+          '$ref': '#/definitions/Permission'
       robots:
         description: A list of robot accounts who access to the repository
         type: array
         items:
-          "$ref": "#/definitions/Permission"
+          '$ref': '#/definitions/Permission'
       url:
         description: The docker pull url for this image
         type: string
@@ -312,10 +400,10 @@ definitions:
     description: The resource definition for a repository in the registry
     type: object
     allOf:
-      - "$ref": "#/definitions/Object"
+      - '$ref': '#/definitions/Object'
     properties:
       spec:
-        "$ref": "#/definitions/RepositorySpec"
+        '$ref': '#/definitions/RepositorySpec'
     required:
       - spec
 
@@ -323,12 +411,12 @@ definitions:
     description: A list of repositories found
     type: object
     allOf:
-      - "$ref": "#/definitions/Object"
+      - '$ref': '#/definitions/Object'
     properties:
       items:
         type: array
         items:
-          "$ref": "#/definitions/Repository"
+          '$ref': '#/definitions/Repository'
 
   RobotSpec:
     description: The resource specification of a robot account
@@ -358,10 +446,10 @@ definitions:
     description: The resource definition for a robot account
     type: object
     allOf:
-      - "$ref": "#/definitions/Object"
+      - '$ref': '#/definitions/Object'
     properties:
       spec:
-        "$ref": "#/definitions/RobotSpec"
+        '$ref': '#/definitions/RobotSpec'
     required:
       - spec
 
@@ -369,12 +457,43 @@ definitions:
     description: A list of robot accounts
     type: object
     allOf:
-      - "$ref": "#/definitions/Object"
+      - '$ref': '#/definitions/Object'
     properties:
       items:
         type: array
         items:
-          "$ref": "#/definitions/Robot"
+          '$ref': '#/definitions/Robot'
+
+  Team:
+    description: Is the team resources i.e collection of members
+    type: object
+    allOf:
+      - '$ref': '#/definitions/Object'
+    properties:
+      spec:
+        '$ref': '#/definitions/TeamSpec'
+    required:
+      - spec
+
+  TeamSpec:
+    description: Is the specification of the configuration of the resource
+    type: object
+    properties:
+      members:
+        type: array
+        items:
+          type: string
+
+  TeamList:
+    description: A collection of teams in the organization
+    type: object
+    allOf:
+      - '$ref': '#/definitions/Object'
+    properties:
+      items:
+        type: array
+        items:
+          '$ref': '#/definitions/Team'
 
   Principal:
     type: string

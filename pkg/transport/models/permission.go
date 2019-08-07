@@ -41,7 +41,8 @@ type Permission struct {
 	// Required: true
 	Name *string `json:"name"`
 
-	// The level of access to be given to the identify (team, memeber or robot)
+	// The level of access to be given to the identify (team, member or robot)
+	//
 	// Required: true
 	// Enum: [admin none read write]
 	Permission *string `json:"permission"`

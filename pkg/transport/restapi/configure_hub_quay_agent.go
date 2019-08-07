@@ -69,6 +69,9 @@ func configureAPI(api *operations.HubQuayAgentAPI) http.Handler {
 	api.DeleteRobotsNamespaceNameHandler = operations.DeleteRobotsNamespaceNameHandlerFunc(func(params operations.DeleteRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .DeleteRobotsNamespaceName has not yet been implemented")
 	})
+	api.DeleteTeamsNamespaceNameHandler = operations.DeleteTeamsNamespaceNameHandlerFunc(func(params operations.DeleteTeamsNamespaceNameParams, principal *models.Principal) middleware.Responder {
+		return middleware.NotImplemented("operation .DeleteTeamsNamespaceName has not yet been implemented")
+	})
 	api.GetAliveHandler = operations.GetAliveHandlerFunc(func(params operations.GetAliveParams) middleware.Responder {
 		return middleware.NotImplemented("operation .GetAlive has not yet been implemented")
 	})
@@ -87,11 +90,20 @@ func configureAPI(api *operations.HubQuayAgentAPI) http.Handler {
 	api.GetRobotsNamespaceNameHandler = operations.GetRobotsNamespaceNameHandlerFunc(func(params operations.GetRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .GetRobotsNamespaceName has not yet been implemented")
 	})
+	api.GetTeamsNamespaceHandler = operations.GetTeamsNamespaceHandlerFunc(func(params operations.GetTeamsNamespaceParams, principal *models.Principal) middleware.Responder {
+		return middleware.NotImplemented("operation .GetTeamsNamespace has not yet been implemented")
+	})
+	api.GetTeamsNamespaceNameHandler = operations.GetTeamsNamespaceNameHandlerFunc(func(params operations.GetTeamsNamespaceNameParams, principal *models.Principal) middleware.Responder {
+		return middleware.NotImplemented("operation .GetTeamsNamespaceName has not yet been implemented")
+	})
 	api.PutRegistryNamespaceNameHandler = operations.PutRegistryNamespaceNameHandlerFunc(func(params operations.PutRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .PutRegistryNamespaceName has not yet been implemented")
 	})
 	api.PutRobotsNamespaceNameHandler = operations.PutRobotsNamespaceNameHandlerFunc(func(params operations.PutRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .PutRobotsNamespaceName has not yet been implemented")
+	})
+	api.PutTeamsNamespaceNameHandler = operations.PutTeamsNamespaceNameHandlerFunc(func(params operations.PutTeamsNamespaceNameParams, principal *models.Principal) middleware.Responder {
+		return middleware.NotImplemented("operation .PutTeamsNamespaceName has not yet been implemented")
 	})
 
 	api.ServerShutdown = func() {}

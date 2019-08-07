@@ -29,18 +29,26 @@ type Handler interface {
 	Create(context.Context, *models.Repository) (*models.Repository, *models.APIError)
 	// CreateRobot is responsible for creating a robot account
 	CreateRobot(context.Context, *models.Robot) (*models.Robot, *models.APIError)
+	// CreateTeam is responsible for creation a team in the org
+	CreateTeam(context.Context, *models.Team) (*models.Team, *models.APIError)
 	// Delete is responsible for deleting a repo
 	Delete(context.Context, string, string) *models.APIError
 	// DeleteRobot is responsible for deleting robot account
 	DeleteRobot(context.Context, string, string) *models.APIError
+	// DeleteTeam is responsible for deleting a team in the org
+	DeleteTeam(context.Context, string, string) *models.APIError
 	// Get is responsible for retrieving a repository
 	Get(context.Context, string, string) (*models.Repository, *models.APIError)
 	// GetRobot is responsible for retrieving a robot
 	GetRobot(context.Context, string, string) (*models.Robot, *models.APIError)
+	// GetTeam is responsible for retrieving the state of a team
+	GetTeam(context.Context, string, string) (*models.Team, *models.APIError)
 	// Health is responsible for checking the health of the agent
 	Health(context.Context, string) *models.APIError
 	// List is responsible for listing all the repostories
 	List(context.Context, string) (*models.RepositoryList, *models.APIError)
 	// ListRobots is responsible for listing all the robots
 	ListRobots(context.Context, string) (*models.RobotList, *models.APIError)
+	// ListTeams is responsible for listing the teams
+	ListTeams(context.Context, string) (*models.TeamList, *models.APIError)
 }

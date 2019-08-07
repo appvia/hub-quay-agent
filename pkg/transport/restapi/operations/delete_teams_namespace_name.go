@@ -31,43 +31,43 @@ import (
 	models "github.com/appvia/hub-quay-agent/pkg/transport/models"
 )
 
-// GetRobotsNamespaceNameHandlerFunc turns a function with the right signature into a get robots namespace name handler
-type GetRobotsNamespaceNameHandlerFunc func(GetRobotsNamespaceNameParams, *models.Principal) middleware.Responder
+// DeleteTeamsNamespaceNameHandlerFunc turns a function with the right signature into a delete teams namespace name handler
+type DeleteTeamsNamespaceNameHandlerFunc func(DeleteTeamsNamespaceNameParams, *models.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetRobotsNamespaceNameHandlerFunc) Handle(params GetRobotsNamespaceNameParams, principal *models.Principal) middleware.Responder {
+func (fn DeleteTeamsNamespaceNameHandlerFunc) Handle(params DeleteTeamsNamespaceNameParams, principal *models.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
-// GetRobotsNamespaceNameHandler interface for that can handle valid get robots namespace name params
-type GetRobotsNamespaceNameHandler interface {
-	Handle(GetRobotsNamespaceNameParams, *models.Principal) middleware.Responder
+// DeleteTeamsNamespaceNameHandler interface for that can handle valid delete teams namespace name params
+type DeleteTeamsNamespaceNameHandler interface {
+	Handle(DeleteTeamsNamespaceNameParams, *models.Principal) middleware.Responder
 }
 
-// NewGetRobotsNamespaceName creates a new http.Handler for the get robots namespace name operation
-func NewGetRobotsNamespaceName(ctx *middleware.Context, handler GetRobotsNamespaceNameHandler) *GetRobotsNamespaceName {
-	return &GetRobotsNamespaceName{Context: ctx, Handler: handler}
+// NewDeleteTeamsNamespaceName creates a new http.Handler for the delete teams namespace name operation
+func NewDeleteTeamsNamespaceName(ctx *middleware.Context, handler DeleteTeamsNamespaceNameHandler) *DeleteTeamsNamespaceName {
+	return &DeleteTeamsNamespaceName{Context: ctx, Handler: handler}
 }
 
-/*GetRobotsNamespaceName swagger:route GET /robots/{namespace}/{name} getRobotsNamespaceName
+/*DeleteTeamsNamespaceName swagger:route DELETE /teams/{namespace}/{name} deleteTeamsNamespaceName
 
-Retrieves a list of robot accounts from within the registry
+Delete a team from Quay
 
-Used to retrieve a list of robot accounts and the permissions they have on the repositories
+Used to delete a team from Quay
 
 
 */
-type GetRobotsNamespaceName struct {
+type DeleteTeamsNamespaceName struct {
 	Context *middleware.Context
-	Handler GetRobotsNamespaceNameHandler
+	Handler DeleteTeamsNamespaceNameHandler
 }
 
-func (o *GetRobotsNamespaceName) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (o *DeleteTeamsNamespaceName) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
 		r = rCtx
 	}
-	var Params = NewGetRobotsNamespaceNameParams()
+	var Params = NewDeleteTeamsNamespaceNameParams()
 
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
