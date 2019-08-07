@@ -5,7 +5,7 @@ AUTHOR_EMAIL=gambol99@gmail.com
 BUILD_TIME=$(shell date '+%s')
 DEPS=$(shell go list -f '{{range .TestImports}}{{.}} {{end}}' ./...)
 GIT_SHA=$(shell git --no-pager describe --always --dirty)
-GOVERSION ?= 1.11.1
+GOVERSION ?= 1.12.7
 HARDWARE=$(shell uname -m)
 LFLAGS ?= -X main.gitsha=${GIT_SHA} -X main.compiled=${BUILD_TIME}
 PACKAGES=$(shell go list ./...)
@@ -13,7 +13,7 @@ REGISTRY=quay.io
 ROOT_DIR=${PWD}
 SWAGGER_API="swagger.yml"
 VERSION ?= $(shell awk '/release.*=/ { print $$3 }' cmd/hub-quay-agent/main.go | sed 's/"//g')
-VETARGS ?= -asmdecl -atomic -bool -buildtags -copylocks -methods -nilfunc -printf -rangeloops -structtags -unsafeptr
+VETARGS ?= -asmdecl -atomic -bool -buildtags -copylocks -methods -nilfunc -printf -rangeloops -unsafeptr
 
 .PHONY: test authors changelog build docker static release lint cover vet glide-install
 
@@ -138,7 +138,7 @@ go-swagger:
 lint:
 	@echo "--> Running golint"
 	@which golint 2>/dev/null ; if [ $$? -eq 1 ]; then \
-    go get -u github.com/golang/lint/golint; \
+    go get -u golang.org/x/lint/golint; \
   fi
 	@golint $(PACKAGES)
 
