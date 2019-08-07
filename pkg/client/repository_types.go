@@ -65,7 +65,6 @@ type Permission struct {
 	Role        string `json:"role"`
 	Name        string `json:"name"`
 	IsRobot     bool   `json:"is_robot"`
-	IsTeam      bool
 }
 
 // RepositoryList defined a list of repositories
