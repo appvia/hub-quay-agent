@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.9
 LABEL Name=hub-quay-agent \
       Release=https://github.com/appvia/hub-quay-agent \
       Maintainer=gambol99@gmail.com \
