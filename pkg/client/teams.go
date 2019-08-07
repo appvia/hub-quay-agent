@@ -43,6 +43,7 @@ func (t *teamsImpl) Get(ctx context.Context, fullname string) (*Team, error) {
 		return nil, err
 	}
 
+	// @step: find the team we are interested in
 	for _, x := range teams.Teams {
 		if name == x.Name {
 			return x, nil
@@ -55,7 +56,7 @@ func (t *teamsImpl) Get(ctx context.Context, fullname string) (*Team, error) {
 
 // ListMembers returns a list of members in a team
 func (t *teamsImpl) ListMembers(ctx context.Context, fullname string) (*Members, error) {
-	var list *Members
+	list := &Members{}
 
 	namespace, name := t.parseFullName(fullname)
 	uri := fmt.Sprintf("organization/%s/team/%s/members", namespace, name)
@@ -69,19 +70,19 @@ func (t *teamsImpl) ListMembers(ctx context.Context, fullname string) (*Members,
 
 // Create is used to create a team
 func (t *teamsImpl) Create(ctx context.Context, team *Team, members *Members) (*Team, error) {
-	namespace, name := t.parseFullName(team.Name)
-
 	found, err := t.Has(ctx, team.Name)
 	if err != nil {
 		return nil, err
 	}
+	namespace, name := t.parseFullName(team.Name)
+
 	if !found {
 		// @step: we are creating a new team
-		// PUT /api/v1/organization/{orgname}/team/{teamname}
 		uri := fmt.Sprintf("organization/%s/team/%s", namespace, name)
-		if err := t.Handle(ctx, http.MethodPut, uri, nil, nil); err != nil {
+		if err := t.Handle(ctx, http.MethodPut, uri, team, nil); err != nil {
 			return nil, err
 		}
+
 		// @step: iterate the members and add them
 		for _, x := range members.Members {
 			uri = fmt.Sprintf("organization/%s/team/%s/members/%s", namespace, name, x.Name)
@@ -165,6 +166,10 @@ func (t *teamsImpl) Has(ctx context.Context, fullname string) (bool, error) {
 
 // List is responsible for listing all the teams in the organization
 func (t *teamsImpl) List(ctx context.Context, namespace string) (*TeamList, error) {
+	if namespace == "" {
+		return nil, errors.New("no namespace specified")
+	}
+
 	// @step we need to query the organization whih has a list of teams
 	org := &Organization{}
 	uri := fmt.Sprintf("organization/%s", namespace)

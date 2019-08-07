@@ -190,7 +190,11 @@ func invokeServerAction(ctx *cli.Context) error {
 	})
 
 	api.PutTeamsNamespaceNameHandler = operations.PutTeamsNamespaceNameHandlerFunc(func(params operations.PutTeamsNamespaceNameParams, principal *models.Principal) middleware.Responder {
-		return middleware.NotImplemented("operation .PutTeamsNamespaceName has not yet been implemented")
+		resp, err := svc.CreateTeam(params.HTTPRequest.Context(), params.Team)
+		if err != nil {
+			return operations.NewPutTeamsNamespaceNameDefault(http.StatusInternalServerError).WithPayload(err)
+		}
+		return operations.NewPutTeamsNamespaceNameOK().WithPayload(resp)
 	})
 
 	handler := alice.New(authinfo.New).Then(api.Serve(nil))

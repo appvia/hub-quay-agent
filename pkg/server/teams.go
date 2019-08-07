@@ -33,7 +33,12 @@ func (s *serverImpl) CreateTeam(ctx context.Context, team *models.Team) (*models
 		"namespace": team.Namespace,
 	}).Debug("attempting to create or update team")
 
-	model := &client.Team{Name: sv(team.Name)}
+	fullname := fmt.Sprintf("%s/%s", sv(team.Namespace), sv(team.Name))
+
+	model := &client.Team{
+		Name: fullname,
+		Role: "member",
+	}
 	members := &client.Members{}
 	for _, x := range team.Spec.Members {
 		members.Members = append(members.Members, &client.Member{Name: x})
@@ -128,7 +133,10 @@ func (s *serverImpl) ListTeams(ctx context.Context, namespace string) (*models.T
 	}
 
 	list := &models.TeamList{
-		Object: models.Object{Namespace: sp(namespace)},
+		Object: models.Object{
+			Name:      sp("teams"),
+			Namespace: sp(namespace),
+		},
 	}
 
 	for _, x := range teams.Teams {

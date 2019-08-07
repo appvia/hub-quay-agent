@@ -93,6 +93,14 @@ parameters:
     schema:
       '$ref': '#/definitions/Robot'
     required: true
+  team:
+    name: team
+    description: >
+      The definition of a team within the organization
+    in: body
+    schema:
+      '$ref': '#/definitions/Team'
+    required: true
 
 paths:
   '/alive':
@@ -271,6 +279,7 @@ paths:
       parameters:
         - '$ref': '#/parameters/namespace'
         - '$ref': '#/parameters/name'
+        - '$ref': '#/parameters/team'
       responses:
         '200':
           '$ref': '#/responses/team'

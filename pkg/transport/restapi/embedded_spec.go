@@ -315,6 +315,9 @@ func init() {
           },
           {
             "$ref": "#/parameters/name"
+          },
+          {
+            "$ref": "#/parameters/team"
           }
         ],
         "responses": {
@@ -653,6 +656,15 @@ func init() {
       "required": true,
       "schema": {
         "$ref": "#/definitions/Robot"
+      }
+    },
+    "team": {
+      "description": "The definition of a team within the organization\n",
+      "name": "team",
+      "in": "body",
+      "required": true,
+      "schema": {
+        "$ref": "#/definitions/Team"
       }
     }
   },
@@ -1157,6 +1169,15 @@ func init() {
             "name": "name",
             "in": "path",
             "required": true
+          },
+          {
+            "description": "The definition of a team within the organization\n",
+            "name": "team",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
           }
         ],
         "responses": {
@@ -1512,6 +1533,15 @@ func init() {
       "required": true,
       "schema": {
         "$ref": "#/definitions/Robot"
+      }
+    },
+    "team": {
+      "description": "The definition of a team within the organization\n",
+      "name": "team",
+      "in": "body",
+      "required": true,
+      "schema": {
+        "$ref": "#/definitions/Team"
       }
     }
   },

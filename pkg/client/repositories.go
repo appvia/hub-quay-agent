@@ -112,6 +112,24 @@ func (r *repositoryImpl) DeleteRobots(ctx context.Context, name string, perms []
 	return nil
 }
 
+func (r *repositoryImpl) DeleteTeams(ctx context.Context, name string, perms []*Permission) error {
+	current, err := r.Repositories().ListTeams(ctx, name)
+	if err != nil {
+		return err
+	}
+	for _, x := range perms {
+		if hasPermission(current, x) {
+			uri := fmt.Sprintf("/repository/%s/permissions/team/%s", name, x.Name)
+
+			if err := r.Handle(ctx, http.MethodDelete, uri, nil, nil); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 // Has checks if a repository exists
 func (r *repositoryImpl) Has(ctx context.Context, name string) (bool, error) {
 	if _, err := r.Get(ctx, name); err != nil {
@@ -173,6 +191,25 @@ func (r *repositoryImpl) AddRobots(ctx context.Context, name string, robots []*P
 	return r.AddUsers(ctx, name, robots)
 }
 
+// AddTeams is responsible for adding team permissions to a repository
+func (r *repositoryImpl) AddTeams(ctx context.Context, name string, teams []*Permission) error {
+	current, err := r.ListTeams(ctx, name)
+	if err != nil {
+		return err
+	}
+
+	for _, x := range teams {
+		if !hasPermission(current, x) {
+			uri := fmt.Sprintf("/repository/%s/permissions/team/%s", name, x.Name)
+			if err := r.Handle(ctx, http.MethodPut, uri, x, nil); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (r *repositoryImpl) List(ctx context.Context, namespace string) (*RepositoryList, error) {
 	list := &RepositoryList{}
 	token := ""
@@ -201,38 +238,51 @@ func (r *repositoryImpl) List(ctx context.Context, namespace string) (*Repositor
 	return nil, fmt.Errorf("reached the max number of pages when listing repositories")
 }
 
-// ListPermisions is a list of users permissions for robots and users
-func (r *repositoryImpl) ListPermissions(ctx context.Context, name string) ([]*Permission, error) {
-	return r.permissions(ctx, name, true, true)
-}
-
 // ListUsers returns the users associated to the repository
 func (r *repositoryImpl) ListUsers(ctx context.Context, name string) ([]*Permission, error) {
-	return r.permissions(ctx, name, false, true)
+	return r.permissions(ctx, name, "user")
 }
 
 // ListRobots returns the robots associated to the repository
 func (r *repositoryImpl) ListRobots(ctx context.Context, name string) ([]*Permission, error) {
-	return r.permissions(ctx, name, true, false)
+	return r.permissions(ctx, name, "robot")
 }
 
-func (r *repositoryImpl) permissions(ctx context.Context, name string, robots, users bool) ([]*Permission, error) {
+// ListTeams returns a list of permissions for team access on the a repository
+func (r *repositoryImpl) ListTeams(ctx context.Context, name string) ([]*Permission, error) {
+	return r.permissions(ctx, name, "team")
+}
+
+func (r *repositoryImpl) permissions(ctx context.Context, name string, entity string) ([]*Permission, error) {
 	var perms struct {
 		// Permissions is a collection of permission for user and robots
 		Permissions map[string]*Permission `json:"permissions,omitempty"`
 	}
-	uri := fmt.Sprintf("/repository/%s/permissions/user", name)
+	var uri string
+	switch entity {
+	case "user", "robot":
+		uri = fmt.Sprintf("/repository/%s/permissions/user", name)
+	default:
+		uri = fmt.Sprintf("/repository/%s/permissions/team", name)
+	}
 
 	if err := r.Handle(ctx, http.MethodGet, uri, nil, &perms); err != nil {
 		return nil, err
 	}
 
 	var list []*Permission
+
 	for _, x := range perms.Permissions {
-		if x.IsRobot && robots {
-			list = append(list, x)
-		}
-		if !x.IsRobot && users {
+		switch entity {
+		case "user":
+			if !x.IsRobot {
+				list = append(list, x)
+			}
+		case "robot":
+			if !x.IsRobot {
+				list = append(list, x)
+			}
+		default:
 			list = append(list, x)
 		}
 	}

@@ -1,12 +1,12 @@
 {
-  "name": "testing-1",
+  "name": "testingloki-9",
   "namespace": "appvia_hub_dev",
   "spec": {
     "description": "a repo for something",
-    "teams": [
+    "robots": [
       {
-        "name": "dev",
-        "permission": "read"
+        "name": "appvia_hub_dev+global",
+        "permission": "write"
       }
     ],
     "robots": [],

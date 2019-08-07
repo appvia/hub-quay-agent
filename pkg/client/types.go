@@ -59,12 +59,12 @@ type Repositories interface {
 	Has(context.Context, string) (bool, error)
 	// List is responsible for listing all the repositories
 	List(context.Context, string) (*RepositoryList, error)
-	// ListPermissons is responsible for listing all the permissions
-	ListPermissions(context.Context, string) ([]*Permission, error)
 	// ListUsers is responsible for getting the user permissions
 	ListUsers(context.Context, string) ([]*Permission, error)
 	// ListRobots is responsible for getting the robot permissions
 	ListRobots(context.Context, string) ([]*Permission, error)
+	// ListTeams is responsibl for getting the team permissions
+	ListTeams(context.Context, string) ([]*Permission, error)
 	// AddUsers is responsible for adding a user
 	AddUsers(context.Context, string, []*Permission) error
 	// DeleteUser removes a user permission
@@ -73,6 +73,10 @@ type Repositories interface {
 	AddRobots(context.Context, string, []*Permission) error
 	// DeleteRobots removes a user permission
 	DeleteRobots(context.Context, string, []*Permission) error
+	// AddTeams is responsible for adding a robot
+	AddTeams(context.Context, string, []*Permission) error
+	// DeleteTeams removes a user permission
+	DeleteTeams(context.Context, string, []*Permission) error
 }
 
 // Robots is the contract to the robots

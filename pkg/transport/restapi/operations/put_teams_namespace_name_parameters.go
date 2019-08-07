@@ -24,12 +24,16 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/appvia/hub-quay-agent/pkg/transport/models"
 )
 
 // NewPutTeamsNamespaceNameParams creates a new PutTeamsNamespaceNameParams object
@@ -60,6 +64,12 @@ type PutTeamsNamespaceNameParams struct {
 	  In: path
 	*/
 	Namespace string
+	/*The definition of a team within the organization
+
+	  Required: true
+	  In: body
+	*/
+	Team *models.Team
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -81,6 +91,28 @@ func (o *PutTeamsNamespaceNameParams) BindRequest(r *http.Request, route *middle
 		res = append(res, err)
 	}
 
+	if runtime.HasBody(r) {
+		defer r.Body.Close()
+		var body models.Team
+		if err := route.Consumer.Consume(r.Body, &body); err != nil {
+			if err == io.EOF {
+				res = append(res, errors.Required("team", "body"))
+			} else {
+				res = append(res, errors.NewParseError("team", "body", "", err))
+			}
+		} else {
+			// validate body object
+			if err := body.Validate(route.Formats); err != nil {
+				res = append(res, err)
+			}
+
+			if len(res) == 0 {
+				o.Team = &body
+			}
+		}
+	} else {
+		res = append(res, errors.Required("team", "body"))
+	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
