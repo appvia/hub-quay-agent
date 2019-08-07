@@ -5,7 +5,7 @@ AUTHOR_EMAIL=gambol99@gmail.com
 BUILD_TIME=$(shell date '+%s')
 DEPS=$(shell go list -f '{{range .TestImports}}{{.}} {{end}}' ./...)
 GIT_SHA=$(shell git --no-pager describe --always --dirty)
-GOVERSION ?= 1.11.1
+GOVERSION ?= 1.12.7
 HARDWARE=$(shell uname -m)
 LFLAGS ?= -X main.gitsha=${GIT_SHA} -X main.compiled=${BUILD_TIME}
 PACKAGES=$(shell go list ./...)
