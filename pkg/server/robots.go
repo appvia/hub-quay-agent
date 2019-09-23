@@ -62,7 +62,7 @@ func (s *serverImpl) DeleteRobot(ctx context.Context, namespace, name string) *m
 	if found, err := s.Robots().Has(ctx, fullname); err != nil {
 		return newError("checking robot exists", err).model()
 	} else if !found {
-		return newError("resource does not exist", nil).model()
+		return nil
 	}
 
 	if err := s.Robots().Delete(ctx, fullname); err != nil {
