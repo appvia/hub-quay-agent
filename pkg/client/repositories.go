@@ -261,15 +261,14 @@ func (r *repositoryImpl) permissions(ctx context.Context, name string, entity st
 	var uri string
 	switch entity {
 	case "user", "robot":
-		uri = fmt.Sprintf("/repository/%s/permissions/user", name)
+		uri = fmt.Sprintf("/repository/%s/permissions/user/", name)
 	default:
-		uri = fmt.Sprintf("/repository/%s/permissions/team", name)
+		uri = fmt.Sprintf("/repository/%s/permissions/team/", name)
 	}
 
 	if err := r.Handle(ctx, http.MethodGet, uri, nil, &perms); err != nil {
 		return nil, err
 	}
-
 	var list []*Permission
 
 	for _, x := range perms.Permissions {
@@ -279,7 +278,7 @@ func (r *repositoryImpl) permissions(ctx context.Context, name string, entity st
 				list = append(list, x)
 			}
 		case "robot":
-			if !x.IsRobot {
+			if x.IsRobot {
 				list = append(list, x)
 			}
 		default:
