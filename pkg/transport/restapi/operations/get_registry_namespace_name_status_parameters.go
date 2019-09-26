@@ -34,27 +34,36 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// NewGetRegistryNamespaceNameParams creates a new GetRegistryNamespaceNameParams object
-// no default values defined in spec.
-func NewGetRegistryNamespaceNameParams() GetRegistryNamespaceNameParams {
+// NewGetRegistryNamespaceNameStatusParams creates a new GetRegistryNamespaceNameStatusParams object
+// with the default values initialized.
+func NewGetRegistryNamespaceNameStatusParams() GetRegistryNamespaceNameStatusParams {
 
-	return GetRegistryNamespaceNameParams{}
+	var (
+		// initialize parameters with default values
+
+		limitDefault = int64(5)
+	)
+
+	return GetRegistryNamespaceNameStatusParams{
+		Limit: &limitDefault,
+	}
 }
 
-// GetRegistryNamespaceNameParams contains all the bound params for the get registry namespace name operation
+// GetRegistryNamespaceNameStatusParams contains all the bound params for the get registry namespace name status operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters GetRegistryNamespaceName
-type GetRegistryNamespaceNameParams struct {
+// swagger:parameters GetRegistryNamespaceNameStatus
+type GetRegistryNamespaceNameStatusParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Indicates we should include tags in the repositories
+	/*Used to limit the results of a query
 
 	  In: query
+	  Default: 5
 	*/
-	IncludeTags *bool
+	Limit *int64
 	/*The name of the repository you are acting upon
 
 	  Required: true
@@ -67,21 +76,26 @@ type GetRegistryNamespaceNameParams struct {
 	  In: path
 	*/
 	Namespace string
+	/*Used to specify a specific image tag
+
+	  In: query
+	*/
+	Tag *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewGetRegistryNamespaceNameParams() beforehand.
-func (o *GetRegistryNamespaceNameParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewGetRegistryNamespaceNameStatusParams() beforehand.
+func (o *GetRegistryNamespaceNameStatusParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
 
 	qs := runtime.Values(r.URL.Query())
 
-	qIncludeTags, qhkIncludeTags, _ := qs.GetOK("includeTags")
-	if err := o.bindIncludeTags(qIncludeTags, qhkIncludeTags, route.Formats); err != nil {
+	qLimit, qhkLimit, _ := qs.GetOK("limit")
+	if err := o.bindLimit(qLimit, qhkLimit, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -95,14 +109,19 @@ func (o *GetRegistryNamespaceNameParams) BindRequest(r *http.Request, route *mid
 		res = append(res, err)
 	}
 
+	qTag, qhkTag, _ := qs.GetOK("tag")
+	if err := o.bindTag(qTag, qhkTag, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-// bindIncludeTags binds and validates parameter IncludeTags from query.
-func (o *GetRegistryNamespaceNameParams) bindIncludeTags(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindLimit binds and validates parameter Limit from query.
+func (o *GetRegistryNamespaceNameStatusParams) bindLimit(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -111,20 +130,21 @@ func (o *GetRegistryNamespaceNameParams) bindIncludeTags(rawData []string, hasKe
 	// Required: false
 	// AllowEmptyValue: false
 	if raw == "" { // empty values pass all other validations
+		// Default values have been previously initialized by NewGetRegistryNamespaceNameStatusParams()
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
+	value, err := swag.ConvertInt64(raw)
 	if err != nil {
-		return errors.InvalidType("includeTags", "query", "bool", raw)
+		return errors.InvalidType("limit", "query", "int64", raw)
 	}
-	o.IncludeTags = &value
+	o.Limit = &value
 
 	return nil
 }
 
 // bindName binds and validates parameter Name from path.
-func (o *GetRegistryNamespaceNameParams) bindName(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetRegistryNamespaceNameStatusParams) bindName(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -139,7 +159,7 @@ func (o *GetRegistryNamespaceNameParams) bindName(rawData []string, hasKey bool,
 }
 
 // bindNamespace binds and validates parameter Namespace from path.
-func (o *GetRegistryNamespaceNameParams) bindNamespace(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetRegistryNamespaceNameStatusParams) bindNamespace(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -149,6 +169,24 @@ func (o *GetRegistryNamespaceNameParams) bindNamespace(rawData []string, hasKey 
 	// Parameter is provided by construction from the route
 
 	o.Namespace = raw
+
+	return nil
+}
+
+// bindTag binds and validates parameter Tag from query.
+func (o *GetRegistryNamespaceNameStatusParams) bindTag(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.Tag = &raw
 
 	return nil
 }

@@ -28,6 +28,10 @@ responses:
     description: A generic erorr returned by the api
     schema:
       '$ref': '#/definitions/APIError'
+  analysis:
+    description: The image analysis of the tags
+    schema:
+      '$ref': '#/definitions/ImageAnalysisList'
   notfound:
     description: The resource does not exist
   robot:
@@ -63,6 +67,13 @@ parameters:
     in: header
     type: string
     required: false
+  includeTags:
+    name: includeTags
+    description: >
+      Indicates we should include tags in the repositories
+    in: query
+    type: boolean
+    required: false
   name:
     name: name
     description: >
@@ -77,6 +88,14 @@ parameters:
     in: path
     type: string
     required: true
+  limit:
+    name: limit
+    default: 5
+    description: >
+      Used to limit the results of a query
+    in: query
+    type: integer
+    required: false
   repository:
     name: repository
     description: >
@@ -93,6 +112,13 @@ parameters:
     schema:
       '$ref': '#/definitions/Robot'
     required: true
+  tag:
+    name: tag
+    description: >
+      Used to specify a specific image tag
+    in: query
+    type: string
+    required: false
   team:
     name: team
     description: >
@@ -209,6 +235,7 @@ paths:
       parameters:
         - '$ref': '#/parameters/namespace'
         - '$ref': '#/parameters/name'
+        - '$ref': '#/parameters/includeTags'
       responses:
         '200':
           '$ref': '#/responses/repository'
@@ -242,6 +269,22 @@ paths:
       responses:
         '200':
           description: Successfully deleted the repository from the organization
+        default:
+          '$ref': '#/responses/apierror'
+
+  '/registry/{namespace}/{name}/status':
+    get:
+      summary: Retrieves the security assessment of the image tags
+      description: >
+        Used to retrieve security assessment of the image and tags
+      parameters:
+        - '$ref': '#/parameters/namespace'
+        - '$ref': '#/parameters/name'
+        - '$ref': '#/parameters/tag'
+        - '$ref': '#/parameters/limit'
+      responses:
+        '200':
+          '$ref': '#/responses/analysis'
         default:
           '$ref': '#/responses/apierror'
 
@@ -327,10 +370,6 @@ definitions:
           A namespace for the resource, which in this case maps on the
           organization
         type: string
-      signature:
-        description: >
-          A cryptographic signature used to verify the request payload
-        type: string
     required:
       - name
       - namespace
@@ -365,9 +404,9 @@ definitions:
         type: string
       tags:
         description: A collection of tags associated to the image
-        type: object
-        additionalProperties:
-          type: string
+        type: array
+        items:
+          '$ref': '#/definitions/RepositoryTag'
       members:
         description: A list of members whom has access to the repository
         type: array
@@ -407,6 +446,31 @@ definitions:
     required:
       - spec
 
+  RepositoryTag:
+    description: The definition for a repository image tag
+    type: object
+    properties:
+      name:
+        description: Is the image tag name i.e. latest, v0.0.1 etc
+        type: string
+      digest:
+        description: Is the image digest for this image
+        type: string
+      imageId:
+        description: Is the image id for this image tag
+        type: string
+      last_modified:
+        description: The last time the tags was modified
+        type: string
+      size:
+        description: The size of the image in the repository
+        type: integer
+    required:
+      - digest
+      - imageId
+      - last_modified
+      - name
+
   RepositoryList:
     description: A list of repositories found
     type: object
@@ -417,6 +481,106 @@ definitions:
         type: array
         items:
           '$ref': '#/definitions/Repository'
+
+  ImageFeature:
+    description: A layer feature within the image
+    type: object
+    properties:
+      namespace:
+        description: An associated namespace to describe the feature
+        type: string
+      version:
+        description: An associated version to the feature being added
+        type: string
+      format:
+        description: The format of the feature being added
+        type: string
+      addedby:
+        description: The layer the feature was added
+        type: string
+      name:
+        description: The name of the feature which is being added
+        type: string
+      vulnerabilities:
+        type: array
+        items:
+          '$ref': '#/definitions/ImageVulnerability'
+    required:
+      - addedby
+      - format
+      - name
+      - namespace
+      - version
+
+  ImageVulnerability:
+    description: Defines the structure for a image vulnerability
+    type: object
+    properties:
+      namespace:
+        description: The namespace catagory for this vulnerability
+        type: string
+      link:
+        description: A hyperlink to details on the vulnerability
+        type: string
+      fixedby:
+        description: A potential link or information related to a fix
+        type: string
+      severity:
+        description: The severity severity of the vulnerability
+        type: string
+      name:
+        description: The name of the vulnerability
+        type: string
+    required:
+      - link
+      - name
+      - severity
+
+  ImageAnalysis:
+    description: >
+      The resource definition for a list of vulnerabilities on a image tag
+    type: object
+    allOf:
+      - '$ref': '#/definitions/Object'
+    properties:
+      spec:
+        '$ref': '#/definitions/ImageAnalysisSpec'
+    required:
+      - spec
+
+  ImageAnalysisSpec:
+    description: >
+      The resource specification for a image analysis
+    properties:
+      namespace:
+        description: The namespace catagory for the layer
+        type: string
+      features:
+        type: array
+        items:
+          '$ref': '#/definitions/ImageFeature'
+      status:
+        description: >
+          The status of the image analysis, which can be queued or scanned
+        enum:
+          - scanned
+          - queued
+      tag:
+        '$ref': '#/definitions/RepositoryTag'
+    required:
+      - status
+      - tag
+
+  ImageAnalysisList:
+    description: The resource definition for the results of a image scan on a
+    type: object
+    allOf:
+      - '$ref': '#/definitions/Object'
+    properties:
+      items:
+        type: array
+        items:
+          '$ref': '#/definitions/ImageAnalysis'
 
   RobotSpec:
     description: The resource specification of a robot account

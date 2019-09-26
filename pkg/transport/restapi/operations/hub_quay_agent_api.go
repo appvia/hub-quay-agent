@@ -78,6 +78,9 @@ func NewHubQuayAgentAPI(spec *loads.Document) *HubQuayAgentAPI {
 		GetRegistryNamespaceNameHandler: GetRegistryNamespaceNameHandlerFunc(func(params GetRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation GetRegistryNamespaceName has not yet been implemented")
 		}),
+		GetRegistryNamespaceNameStatusHandler: GetRegistryNamespaceNameStatusHandlerFunc(func(params GetRegistryNamespaceNameStatusParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation GetRegistryNamespaceNameStatus has not yet been implemented")
+		}),
 		GetRobotsNamespaceHandler: GetRobotsNamespaceHandlerFunc(func(params GetRobotsNamespaceParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation GetRobotsNamespace has not yet been implemented")
 		}),
@@ -159,6 +162,8 @@ type HubQuayAgentAPI struct {
 	GetRegistryNamespaceHandler GetRegistryNamespaceHandler
 	// GetRegistryNamespaceNameHandler sets the operation handler for the get registry namespace name operation
 	GetRegistryNamespaceNameHandler GetRegistryNamespaceNameHandler
+	// GetRegistryNamespaceNameStatusHandler sets the operation handler for the get registry namespace name status operation
+	GetRegistryNamespaceNameStatusHandler GetRegistryNamespaceNameStatusHandler
 	// GetRobotsNamespaceHandler sets the operation handler for the get robots namespace operation
 	GetRobotsNamespaceHandler GetRobotsNamespaceHandler
 	// GetRobotsNamespaceNameHandler sets the operation handler for the get robots namespace name operation
@@ -266,6 +271,10 @@ func (o *HubQuayAgentAPI) Validate() error {
 
 	if o.GetRegistryNamespaceNameHandler == nil {
 		unregistered = append(unregistered, "GetRegistryNamespaceNameHandler")
+	}
+
+	if o.GetRegistryNamespaceNameStatusHandler == nil {
+		unregistered = append(unregistered, "GetRegistryNamespaceNameStatusHandler")
 	}
 
 	if o.GetRobotsNamespaceHandler == nil {
@@ -440,6 +449,11 @@ func (o *HubQuayAgentAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/registry/{namespace}/{name}"] = NewGetRegistryNamespaceName(o.context, o.GetRegistryNamespaceNameHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/registry/{namespace}/{name}/status"] = NewGetRegistryNamespaceNameStatus(o.context, o.GetRegistryNamespaceNameStatusHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

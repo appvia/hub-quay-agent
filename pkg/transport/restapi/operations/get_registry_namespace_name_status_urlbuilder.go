@@ -32,12 +32,13 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// GetRegistryNamespaceNameURL generates an URL for the get registry namespace name operation
-type GetRegistryNamespaceNameURL struct {
+// GetRegistryNamespaceNameStatusURL generates an URL for the get registry namespace name status operation
+type GetRegistryNamespaceNameStatusURL struct {
 	Name      string
 	Namespace string
 
-	IncludeTags *bool
+	Limit *int64
+	Tag   *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -47,7 +48,7 @@ type GetRegistryNamespaceNameURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetRegistryNamespaceNameURL) WithBasePath(bp string) *GetRegistryNamespaceNameURL {
+func (o *GetRegistryNamespaceNameStatusURL) WithBasePath(bp string) *GetRegistryNamespaceNameStatusURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -55,28 +56,28 @@ func (o *GetRegistryNamespaceNameURL) WithBasePath(bp string) *GetRegistryNamesp
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetRegistryNamespaceNameURL) SetBasePath(bp string) {
+func (o *GetRegistryNamespaceNameStatusURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *GetRegistryNamespaceNameURL) Build() (*url.URL, error) {
+func (o *GetRegistryNamespaceNameStatusURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/registry/{namespace}/{name}"
+	var _path = "/registry/{namespace}/{name}/status"
 
 	name := o.Name
 	if name != "" {
 		_path = strings.Replace(_path, "{name}", name, -1)
 	} else {
-		return nil, errors.New("name is required on GetRegistryNamespaceNameURL")
+		return nil, errors.New("name is required on GetRegistryNamespaceNameStatusURL")
 	}
 
 	namespace := o.Namespace
 	if namespace != "" {
 		_path = strings.Replace(_path, "{namespace}", namespace, -1)
 	} else {
-		return nil, errors.New("namespace is required on GetRegistryNamespaceNameURL")
+		return nil, errors.New("namespace is required on GetRegistryNamespaceNameStatusURL")
 	}
 
 	_basePath := o._basePath
@@ -87,12 +88,20 @@ func (o *GetRegistryNamespaceNameURL) Build() (*url.URL, error) {
 
 	qs := make(url.Values)
 
-	var includeTags string
-	if o.IncludeTags != nil {
-		includeTags = swag.FormatBool(*o.IncludeTags)
+	var limit string
+	if o.Limit != nil {
+		limit = swag.FormatInt64(*o.Limit)
 	}
-	if includeTags != "" {
-		qs.Set("includeTags", includeTags)
+	if limit != "" {
+		qs.Set("limit", limit)
+	}
+
+	var tag string
+	if o.Tag != nil {
+		tag = *o.Tag
+	}
+	if tag != "" {
+		qs.Set("tag", tag)
 	}
 
 	_result.RawQuery = qs.Encode()
@@ -101,7 +110,7 @@ func (o *GetRegistryNamespaceNameURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *GetRegistryNamespaceNameURL) Must(u *url.URL, err error) *url.URL {
+func (o *GetRegistryNamespaceNameStatusURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -112,17 +121,17 @@ func (o *GetRegistryNamespaceNameURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *GetRegistryNamespaceNameURL) String() string {
+func (o *GetRegistryNamespaceNameStatusURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *GetRegistryNamespaceNameURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *GetRegistryNamespaceNameStatusURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on GetRegistryNamespaceNameURL")
+		return nil, errors.New("scheme is required for a full url on GetRegistryNamespaceNameStatusURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on GetRegistryNamespaceNameURL")
+		return nil, errors.New("host is required for a full url on GetRegistryNamespaceNameStatusURL")
 	}
 
 	base, err := o.Build()
@@ -136,6 +145,6 @@ func (o *GetRegistryNamespaceNameURL) BuildFull(scheme, host string) (*url.URL, 
 }
 
 // StringFull returns the string representation of a complete url
-func (o *GetRegistryNamespaceNameURL) StringFull(scheme, host string) string {
+func (o *GetRegistryNamespaceNameStatusURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

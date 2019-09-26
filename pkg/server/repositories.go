@@ -20,6 +20,8 @@ package server
 import (
 	"context"
 	"fmt"
+	"sort"
+	"time"
 
 	"github.com/appvia/hub-quay-agent/pkg/client"
 	"github.com/appvia/hub-quay-agent/pkg/transport/models"
@@ -128,7 +130,7 @@ func (s *serverImpl) Create(ctx context.Context, r *models.Repository) (*models.
 }
 
 // Get is responsible for getting a repository
-func (s *serverImpl) Get(ctx context.Context, namespace, name string) (*models.Repository, *models.APIError) {
+func (s *serverImpl) Get(ctx context.Context, namespace, name string, withTags bool) (*models.Repository, *models.APIError) {
 	fullname := fmt.Sprintf("%s/%s", namespace, name)
 
 	// @step: check if the resource exists
@@ -168,11 +170,23 @@ func (s *serverImpl) Get(ctx context.Context, namespace, name string) (*models.R
 
 		repo.Spec = &models.RepositorySpec{
 			Description: r.Description,
-			Tags:        make(map[string]string, 0),
+			Tags:        make([]*models.RepositoryTag, 0),
 			Robots:      make([]*models.Permission, 0),
 			Members:     make([]*models.Permission, 0),
 			Visibility:  sp(visibility),
 			URL:         s.imageURL(namespace, name),
+		}
+
+		if withTags {
+			for _, x := range r.Tags {
+				repo.Spec.Tags = append(repo.Spec.Tags, &models.RepositoryTag{
+					Digest:       sp(x.ManifestDigest),
+					ImageID:      sp(x.ImageID),
+					LastModified: sp(x.LastModified.Format(time.RFC1123Z)),
+					Name:         sp(x.Name),
+					Size:         int64(x.Size),
+				})
+			}
 		}
 
 		for _, x := range members {
@@ -240,7 +254,7 @@ func (s *serverImpl) List(ctx context.Context, namespace string) (*models.Reposi
 		Items: make([]*models.Repository, 0),
 	}
 	for _, x := range repos.Repositories {
-		repo, err := s.Get(ctx, x.Namespace, x.Name)
+		repo, err := s.Get(ctx, x.Namespace, x.Name, false)
 		if err != nil {
 			return nil, err
 		}
@@ -248,4 +262,104 @@ func (s *serverImpl) List(ctx context.Context, namespace string) (*models.Reposi
 	}
 
 	return list, nil
+}
+
+type analysisList struct {
+	tag    *client.RepositoryTag
+	result *client.ImageAnalysis
+}
+
+// GetImageAnalysis returns the scan on an image
+func (s *serverImpl) GetImageAnalysis(ctx context.Context, namespace, name, tag string, limit int64) (*models.ImageAnalysisList, *models.APIError) {
+	model := &models.ImageAnalysisList{
+		Object: models.Object{
+			Namespace: sp(namespace),
+			Name:      sp(name),
+		},
+		Items: make([]*models.ImageAnalysis, 0),
+	}
+	fullname := fmt.Sprintf("%s/%s", namespace, name)
+
+	var filtered []*client.RepositoryTag
+
+	// @step: get the image analysis for tags / tag were interested in
+	repository, err := s.Client.Repositories().Get(ctx, fullname)
+	if err != nil {
+		return nil, newError("retrieving the repository", err).model()
+	}
+	// @step: filter on tag were interested in
+	if tag != "" {
+		for _, x := range repository.Tags {
+			if x.Name == tag {
+				filtered = append(filtered, x)
+			}
+		}
+	} else {
+		if limit > 0 {
+			// @step: we need to order the tags alas, crap-a-roo!!
+			sort.Slice(filtered, func(i, j int) bool {
+				return filtered[i].LastModified.After(filtered[j].LastModified)
+			})
+			for _, x := range repository.Tags {
+				if limit <= 0 {
+					break
+				}
+				filtered = append(filtered, x)
+				limit--
+			}
+		} else {
+			for _, x := range repository.Tags {
+				filtered = append(filtered, x)
+			}
+		}
+	}
+
+	// @step: retrieve the image analysis for any our tags
+	for _, x := range filtered {
+		resp, err := s.Client.Repositories().ImageAnalysis(ctx, fullname, x.Name)
+		if err != nil {
+			return nil, newError("retrieving the image analysis", err).model()
+		}
+		m := &models.ImageAnalysis{
+			Object: models.Object{
+				Namespace: sp(namespace),
+				Name:      sp(fmt.Sprintf("%s:%s", name, x.Name)),
+			},
+			Spec: &models.ImageAnalysisSpec{
+				Namespace: resp.Data.Layer.NamespaceName,
+				Status:    resp.Status,
+				Tag: &models.RepositoryTag{
+					Digest:       sp(x.ManifestDigest),
+					ImageID:      sp(x.ImageID),
+					LastModified: sp(x.LastModified.Format(time.RFC1123Z)),
+					Name:         sp(x.Name),
+					Size:         int64(x.Size),
+				},
+				Features: make([]*models.ImageFeature, 0),
+			},
+		}
+		for _, feature := range resp.Data.Layer.Features {
+			f := &models.ImageFeature{
+				Addedby:         sp(feature.AddedBy),
+				Format:          sp(feature.VersionFormat),
+				Name:            sp(feature.Name),
+				Namespace:       sp(feature.NamespaceName),
+				Version:         sp(feature.Version),
+				Vulnerabilities: []*models.ImageVulnerability{},
+			}
+			for _, v := range feature.Vulnerabilities {
+				f.Vulnerabilities = append(f.Vulnerabilities, &models.ImageVulnerability{
+					Fixedby:   v.FixedBy,
+					Link:      sp(v.Link),
+					Name:      sp(v.Name),
+					Namespace: v.NamespaceName,
+					Severity:  sp(v.Severity),
+				})
+			}
+			m.Spec.Features = append(m.Spec.Features, f)
+		}
+		model.Items = append(model.Items, m)
+	}
+
+	return model, nil
 }

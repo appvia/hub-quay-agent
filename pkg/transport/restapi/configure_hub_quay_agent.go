@@ -84,6 +84,9 @@ func configureAPI(api *operations.HubQuayAgentAPI) http.Handler {
 	api.GetRegistryNamespaceNameHandler = operations.GetRegistryNamespaceNameHandlerFunc(func(params operations.GetRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .GetRegistryNamespaceName has not yet been implemented")
 	})
+	api.GetRegistryNamespaceNameStatusHandler = operations.GetRegistryNamespaceNameStatusHandlerFunc(func(params operations.GetRegistryNamespaceNameStatusParams, principal *models.Principal) middleware.Responder {
+		return middleware.NotImplemented("operation .GetRegistryNamespaceNameStatus has not yet been implemented")
+	})
 	api.GetRobotsNamespaceHandler = operations.GetRobotsNamespaceHandlerFunc(func(params operations.GetRobotsNamespaceParams, principal *models.Principal) middleware.Responder {
 		return middleware.NotImplemented("operation .GetRobotsNamespace has not yet been implemented")
 	})

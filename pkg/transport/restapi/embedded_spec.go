@@ -121,6 +121,9 @@ func init() {
           },
           {
             "$ref": "#/parameters/name"
+          },
+          {
+            "$ref": "#/parameters/includeTags"
           }
         ],
         "responses": {
@@ -172,6 +175,34 @@ func init() {
         "responses": {
           "200": {
             "description": "Successfully deleted the repository from the organization"
+          },
+          "default": {
+            "$ref": "#/responses/apierror"
+          }
+        }
+      }
+    },
+    "/registry/{namespace}/{name}/status": {
+      "get": {
+        "description": "Used to retrieve security assessment of the image and tags\n",
+        "summary": "Retrieves the security assessment of the image tags",
+        "parameters": [
+          {
+            "$ref": "#/parameters/namespace"
+          },
+          {
+            "$ref": "#/parameters/name"
+          },
+          {
+            "$ref": "#/parameters/tag"
+          },
+          {
+            "$ref": "#/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/analysis"
           },
           "default": {
             "$ref": "#/responses/apierror"
@@ -369,6 +400,139 @@ func init() {
         }
       }
     },
+    "ImageAnalysis": {
+      "description": "The resource definition for a list of vulnerabilities on a image tag\n",
+      "type": "object",
+      "required": [
+        "spec"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        }
+      ],
+      "properties": {
+        "spec": {
+          "$ref": "#/definitions/ImageAnalysisSpec"
+        }
+      }
+    },
+    "ImageAnalysisList": {
+      "description": "The resource definition for the results of a image scan on a",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        }
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImageAnalysis"
+          }
+        }
+      }
+    },
+    "ImageAnalysisSpec": {
+      "description": "The resource specification for a image analysis\n",
+      "required": [
+        "status",
+        "tag"
+      ],
+      "properties": {
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImageFeature"
+          }
+        },
+        "namespace": {
+          "description": "The namespace catagory for the layer",
+          "type": "string"
+        },
+        "status": {
+          "description": "The status of the image analysis, which can be queued or scanned\n",
+          "enum": [
+            "scanned",
+            "queued"
+          ]
+        },
+        "tag": {
+          "$ref": "#/definitions/RepositoryTag"
+        }
+      }
+    },
+    "ImageFeature": {
+      "description": "A layer feature within the image",
+      "type": "object",
+      "required": [
+        "addedby",
+        "format",
+        "name",
+        "namespace",
+        "version"
+      ],
+      "properties": {
+        "addedby": {
+          "description": "The layer the feature was added",
+          "type": "string"
+        },
+        "format": {
+          "description": "The format of the feature being added",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the feature which is being added",
+          "type": "string"
+        },
+        "namespace": {
+          "description": "An associated namespace to describe the feature",
+          "type": "string"
+        },
+        "version": {
+          "description": "An associated version to the feature being added",
+          "type": "string"
+        },
+        "vulnerabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImageVulnerability"
+          }
+        }
+      }
+    },
+    "ImageVulnerability": {
+      "description": "Defines the structure for a image vulnerability",
+      "type": "object",
+      "required": [
+        "link",
+        "name",
+        "severity"
+      ],
+      "properties": {
+        "fixedby": {
+          "description": "A potential link or information related to a fix",
+          "type": "string"
+        },
+        "link": {
+          "description": "A hyperlink to details on the vulnerability",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the vulnerability",
+          "type": "string"
+        },
+        "namespace": {
+          "description": "The namespace catagory for this vulnerability",
+          "type": "string"
+        },
+        "severity": {
+          "description": "The severity severity of the vulnerability",
+          "type": "string"
+        }
+      }
+    },
     "Object": {
       "description": "The definition of a object",
       "type": "object",
@@ -383,10 +547,6 @@ func init() {
         },
         "namespace": {
           "description": "A namespace for the resource, which in this case maps on the organization\n",
-          "type": "string"
-        },
-        "signature": {
-          "description": "A cryptographic signature used to verify the request payload\n",
           "type": "string"
         }
       }
@@ -479,9 +639,9 @@ func init() {
         },
         "tags": {
           "description": "A collection of tags associated to the image",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RepositoryTag"
           }
         },
         "teams": {
@@ -503,6 +663,38 @@ func init() {
             "private",
             "public"
           ]
+        }
+      }
+    },
+    "RepositoryTag": {
+      "description": "The definition for a repository image tag",
+      "type": "object",
+      "required": [
+        "digest",
+        "imageId",
+        "last_modified",
+        "name"
+      ],
+      "properties": {
+        "digest": {
+          "description": "Is the image digest for this image",
+          "type": "string"
+        },
+        "imageId": {
+          "description": "Is the image id for this image tag",
+          "type": "string"
+        },
+        "last_modified": {
+          "description": "The last time the tags was modified",
+          "type": "string"
+        },
+        "name": {
+          "description": "Is the image tag name i.e. latest, v0.0.1 etc",
+          "type": "string"
+        },
+        "size": {
+          "description": "The size of the image in the repository",
+          "type": "integer"
         }
       }
     },
@@ -626,6 +818,19 @@ func init() {
       "name": "X-AuthInfo",
       "in": "header"
     },
+    "includeTags": {
+      "type": "boolean",
+      "description": "Indicates we should include tags in the repositories\n",
+      "name": "includeTags",
+      "in": "query"
+    },
+    "limit": {
+      "type": "integer",
+      "default": 5,
+      "description": "Used to limit the results of a query\n",
+      "name": "limit",
+      "in": "query"
+    },
     "name": {
       "type": "string",
       "description": "The name of the repository you are acting upon\n",
@@ -658,6 +863,12 @@ func init() {
         "$ref": "#/definitions/Robot"
       }
     },
+    "tag": {
+      "type": "string",
+      "description": "Used to specify a specific image tag\n",
+      "name": "tag",
+      "in": "query"
+    },
     "team": {
       "description": "The definition of a team within the organization\n",
       "name": "team",
@@ -669,6 +880,12 @@ func init() {
     }
   },
   "responses": {
+    "analysis": {
+      "description": "The image analysis of the tags",
+      "schema": {
+        "$ref": "#/definitions/ImageAnalysisList"
+      }
+    },
     "apierror": {
       "description": "A generic erorr returned by the api",
       "schema": {
@@ -842,6 +1059,12 @@ func init() {
             "name": "name",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "Indicates we should include tags in the repositories\n",
+            "name": "includeTags",
+            "in": "query"
           }
         ],
         "responses": {
@@ -930,6 +1153,55 @@ func init() {
         "responses": {
           "200": {
             "description": "Successfully deleted the repository from the organization"
+          },
+          "default": {
+            "description": "A generic erorr returned by the api",
+            "schema": {
+              "$ref": "#/definitions/APIError"
+            }
+          }
+        }
+      }
+    },
+    "/registry/{namespace}/{name}/status": {
+      "get": {
+        "description": "Used to retrieve security assessment of the image and tags\n",
+        "summary": "Retrieves the security assessment of the image tags",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The namespace of the repository\n",
+            "name": "namespace",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "The name of the repository you are acting upon\n",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Used to specify a specific image tag\n",
+            "name": "tag",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "default": 5,
+            "description": "Used to limit the results of a query\n",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The image analysis of the tags",
+            "schema": {
+              "$ref": "#/definitions/ImageAnalysisList"
+            }
           },
           "default": {
             "description": "A generic erorr returned by the api",
@@ -1246,6 +1518,139 @@ func init() {
         }
       }
     },
+    "ImageAnalysis": {
+      "description": "The resource definition for a list of vulnerabilities on a image tag\n",
+      "type": "object",
+      "required": [
+        "spec"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        }
+      ],
+      "properties": {
+        "spec": {
+          "$ref": "#/definitions/ImageAnalysisSpec"
+        }
+      }
+    },
+    "ImageAnalysisList": {
+      "description": "The resource definition for the results of a image scan on a",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        }
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImageAnalysis"
+          }
+        }
+      }
+    },
+    "ImageAnalysisSpec": {
+      "description": "The resource specification for a image analysis\n",
+      "required": [
+        "status",
+        "tag"
+      ],
+      "properties": {
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImageFeature"
+          }
+        },
+        "namespace": {
+          "description": "The namespace catagory for the layer",
+          "type": "string"
+        },
+        "status": {
+          "description": "The status of the image analysis, which can be queued or scanned\n",
+          "enum": [
+            "scanned",
+            "queued"
+          ]
+        },
+        "tag": {
+          "$ref": "#/definitions/RepositoryTag"
+        }
+      }
+    },
+    "ImageFeature": {
+      "description": "A layer feature within the image",
+      "type": "object",
+      "required": [
+        "addedby",
+        "format",
+        "name",
+        "namespace",
+        "version"
+      ],
+      "properties": {
+        "addedby": {
+          "description": "The layer the feature was added",
+          "type": "string"
+        },
+        "format": {
+          "description": "The format of the feature being added",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the feature which is being added",
+          "type": "string"
+        },
+        "namespace": {
+          "description": "An associated namespace to describe the feature",
+          "type": "string"
+        },
+        "version": {
+          "description": "An associated version to the feature being added",
+          "type": "string"
+        },
+        "vulnerabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImageVulnerability"
+          }
+        }
+      }
+    },
+    "ImageVulnerability": {
+      "description": "Defines the structure for a image vulnerability",
+      "type": "object",
+      "required": [
+        "link",
+        "name",
+        "severity"
+      ],
+      "properties": {
+        "fixedby": {
+          "description": "A potential link or information related to a fix",
+          "type": "string"
+        },
+        "link": {
+          "description": "A hyperlink to details on the vulnerability",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the vulnerability",
+          "type": "string"
+        },
+        "namespace": {
+          "description": "The namespace catagory for this vulnerability",
+          "type": "string"
+        },
+        "severity": {
+          "description": "The severity severity of the vulnerability",
+          "type": "string"
+        }
+      }
+    },
     "Object": {
       "description": "The definition of a object",
       "type": "object",
@@ -1260,10 +1665,6 @@ func init() {
         },
         "namespace": {
           "description": "A namespace for the resource, which in this case maps on the organization\n",
-          "type": "string"
-        },
-        "signature": {
-          "description": "A cryptographic signature used to verify the request payload\n",
           "type": "string"
         }
       }
@@ -1356,9 +1757,9 @@ func init() {
         },
         "tags": {
           "description": "A collection of tags associated to the image",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RepositoryTag"
           }
         },
         "teams": {
@@ -1380,6 +1781,38 @@ func init() {
             "private",
             "public"
           ]
+        }
+      }
+    },
+    "RepositoryTag": {
+      "description": "The definition for a repository image tag",
+      "type": "object",
+      "required": [
+        "digest",
+        "imageId",
+        "last_modified",
+        "name"
+      ],
+      "properties": {
+        "digest": {
+          "description": "Is the image digest for this image",
+          "type": "string"
+        },
+        "imageId": {
+          "description": "Is the image id for this image tag",
+          "type": "string"
+        },
+        "last_modified": {
+          "description": "The last time the tags was modified",
+          "type": "string"
+        },
+        "name": {
+          "description": "Is the image tag name i.e. latest, v0.0.1 etc",
+          "type": "string"
+        },
+        "size": {
+          "description": "The size of the image in the repository",
+          "type": "integer"
         }
       }
     },
@@ -1503,6 +1936,19 @@ func init() {
       "name": "X-AuthInfo",
       "in": "header"
     },
+    "includeTags": {
+      "type": "boolean",
+      "description": "Indicates we should include tags in the repositories\n",
+      "name": "includeTags",
+      "in": "query"
+    },
+    "limit": {
+      "type": "integer",
+      "default": 5,
+      "description": "Used to limit the results of a query\n",
+      "name": "limit",
+      "in": "query"
+    },
     "name": {
       "type": "string",
       "description": "The name of the repository you are acting upon\n",
@@ -1535,6 +1981,12 @@ func init() {
         "$ref": "#/definitions/Robot"
       }
     },
+    "tag": {
+      "type": "string",
+      "description": "Used to specify a specific image tag\n",
+      "name": "tag",
+      "in": "query"
+    },
     "team": {
       "description": "The definition of a team within the organization\n",
       "name": "team",
@@ -1546,6 +1998,12 @@ func init() {
     }
   },
   "responses": {
+    "analysis": {
+      "description": "The image analysis of the tags",
+      "schema": {
+        "$ref": "#/definitions/ImageAnalysisList"
+      }
+    },
     "apierror": {
       "description": "A generic erorr returned by the api",
       "schema": {

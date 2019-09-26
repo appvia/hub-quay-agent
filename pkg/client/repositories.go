@@ -19,8 +19,10 @@ package client
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 type repositoryImpl struct {
@@ -59,6 +61,41 @@ func (r *repositoryImpl) Create(ctx context.Context, repo *NewRepo) error {
 	}
 
 	return r.Handle(ctx, http.MethodPost, "/repository", &repo, nil)
+}
+
+// ImageAnalysis returns the image scan for a particular image tag
+func (r *repositoryImpl) ImageAnalysis(ctx context.Context, name, tag string) (*ImageAnalysis, error) {
+	scan := &ImageAnalysis{}
+
+	// @step: check we have the tag
+	reference, err := r.GetTag(ctx, name, tag)
+	if err != nil {
+		return nil, err
+	}
+	if reference == nil {
+		return nil, errors.New("image tag does not exist")
+	}
+
+	uri := fmt.Sprintf("/repository/%s/image/%s/security", name, reference.ImageID)
+
+	return scan, r.Handle(ctx, http.MethodGet, uri, nil, scan)
+}
+
+func (r *repositoryImpl) GetTag(ctx context.Context, name, tag string) (*RepositoryTag, error) {
+	// @step: check if the repository exists
+	repository, err := r.Get(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	// @step: find the tag if there
+	for tagName, x := range repository.Tags {
+		if tag == tagName {
+			return x, nil
+		}
+	}
+
+	return nil, nil
 }
 
 // Delete is responsible for deleting a repository
@@ -151,7 +188,20 @@ func (r *repositoryImpl) Get(ctx context.Context, name string) (*Repository, err
 	repo := &Repository{}
 	uri := fmt.Sprintf("/repository/%s?includeTags=true", name)
 
-	return repo, r.Handle(ctx, http.MethodGet, uri, nil, repo)
+	if err := r.Handle(ctx, http.MethodGet, uri, nil, repo); err != nil {
+		return nil, err
+	}
+
+	// @step: format the tags
+	for _, x := range repo.Tags {
+		parsed, err := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", x.Modified)
+		if err != nil {
+			return nil, fmt.Errorf("invalid last modified time: %s", x.Modified)
+		}
+		x.LastModified = parsed
+	}
+
+	return repo, nil
 }
 
 // AddUsers is responsible for adding a user
