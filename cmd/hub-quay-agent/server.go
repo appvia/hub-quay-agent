@@ -134,11 +134,31 @@ func invokeServerAction(ctx *cli.Context) error {
 	})
 
 	api.GetRegistryNamespaceNameHandler = operations.GetRegistryNamespaceNameHandlerFunc(func(params operations.GetRegistryNamespaceNameParams, principal *models.Principal) middleware.Responder {
-		resp, err := svc.Get(params.HTTPRequest.Context(), params.Namespace, params.Name)
+		withTags := false
+		if params.IncludeTags != nil {
+			withTags = *params.IncludeTags
+		}
+		resp, err := svc.Get(params.HTTPRequest.Context(), params.Namespace, params.Name, withTags)
 		if err != nil {
 			return operations.NewGetRegistryNamespaceNameDefault(http.StatusServiceUnavailable).WithPayload(err)
 		}
 		return operations.NewGetRegistryNamespaceNameOK().WithPayload(resp)
+	})
+
+	api.GetRegistryNamespaceNameStatusHandler = operations.GetRegistryNamespaceNameStatusHandlerFunc(func(params operations.GetRegistryNamespaceNameStatusParams, principal *models.Principal) middleware.Responder {
+		tagName := ""
+		if params.Tag != nil {
+			tagName = *params.Tag
+		}
+		limit := int64(5)
+		if params.Limit != nil {
+			limit = int64(*params.Limit)
+		}
+		resp, err := svc.GetImageAnalysis(params.HTTPRequest.Context(), params.Namespace, params.Name, tagName, limit)
+		if err != nil {
+			return operations.NewGetRegistryNamespaceNameStatusDefault(http.StatusServiceUnavailable).WithPayload(err)
+		}
+		return operations.NewGetRegistryNamespaceNameStatusOK().WithPayload(resp)
 	})
 
 	api.GetRobotsNamespaceHandler = operations.GetRobotsNamespaceHandlerFunc(func(params operations.GetRobotsNamespaceParams, principal *models.Principal) middleware.Responder {

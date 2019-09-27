@@ -48,7 +48,7 @@ type RepositorySpec struct {
 	Robots []*Permission `json:"robots"`
 
 	// A collection of tags associated to the image
-	Tags map[string]string `json:"tags,omitempty"`
+	Tags []*RepositoryTag `json:"tags"`
 
 	// A list of teams which have access to the repository
 	Teams []*Permission `json:"teams"`
@@ -71,6 +71,10 @@ func (m *RepositorySpec) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRobots(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTags(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -128,6 +132,31 @@ func (m *RepositorySpec) validateRobots(formats strfmt.Registry) error {
 			if err := m.Robots[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("robots" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *RepositorySpec) validateTags(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Tags) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Tags); i++ {
+		if swag.IsZero(m.Tags[i]) { // not required
+			continue
+		}
+
+		if m.Tags[i] != nil {
+			if err := m.Tags[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("tags" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

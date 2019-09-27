@@ -38,11 +38,13 @@ type Handler interface {
 	// DeleteTeam is responsible for deleting a team in the org
 	DeleteTeam(context.Context, string, string) *models.APIError
 	// Get is responsible for retrieving a repository
-	Get(context.Context, string, string) (*models.Repository, *models.APIError)
+	Get(context.Context, string, string, bool) (*models.Repository, *models.APIError)
 	// GetRobot is responsible for retrieving a robot
 	GetRobot(context.Context, string, string) (*models.Robot, *models.APIError)
 	// GetTeam is responsible for retrieving the state of a team
 	GetTeam(context.Context, string, string) (*models.Team, *models.APIError)
+	// GetImageAnalysis is responsible for retriving the scans on a image
+	GetImageAnalysis(context.Context, string, string, string, int64) (*models.ImageAnalysisList, *models.APIError)
 	// Health is responsible for checking the health of the agent
 	Health(context.Context, string) *models.APIError
 	// List is responsible for listing all the repostories

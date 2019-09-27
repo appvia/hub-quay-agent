@@ -17,7 +17,10 @@
 
 package client
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 // Repository defines a repository
 type Repository struct {
@@ -36,10 +39,44 @@ type Repository struct {
 	TrustEnabled   bool                      `json:"trust_enabled"`
 }
 
+// ImageAnalysis defines the results of an image scan
+type ImageAnalysis struct {
+	Status string `json:"status"`
+	Data   struct {
+		Layer struct {
+			Features         []*ImageFeature `json:"Features"`
+			IndexedByVersion int             `json:"IndexedByVersion"`
+			Name             string          `json:"Name"`
+			NamespaceName    string          `json:"NamespaceName"`
+			ParentName       string          `json:"ParentName"`
+		} `json:"Layer"`
+	} `json:"data"`
+}
+
+// ImageFeature defined the feature in a image layer
+type ImageFeature struct {
+	AddedBy         string                  `json:"AddedBy"`
+	Name            string                  `json:"Name"`
+	NamespaceName   string                  `json:"NamespaceName"`
+	Version         string                  `json:"Version"`
+	VersionFormat   string                  `json:"VersionFormat"`
+	Vulnerabilities []*ImageVulnerabilities `json:"Vulnerabilities,omitempty"`
+}
+
+// ImageVulnerabilities defines a vulnerability in the layer
+type ImageVulnerabilities struct {
+	NamespaceName string `json:"NamespaceName"`
+	Link          string `json:"Link"`
+	Name          string `json:"Name"`
+	FixedBy       string `json:"FixedBy"`
+	Severity      string `json:"Severity"`
+}
+
 // RepositoryTag defines a repository tag
 type RepositoryTag struct {
 	ImageID        string `json:"image_id"`
-	LastModified   string `json:"last_modified"`
+	Modified       string `json:"last_modified"`
+	LastModified   time.Time
 	Name           string `json:"name"`
 	ManifestDigest string `json:"manifest_digest"`
 	Size           int    `json:"size"`
