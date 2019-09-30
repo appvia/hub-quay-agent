@@ -49,6 +49,9 @@ func invokeServerAction(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	if ctx.Bool("verbose") {
+		log.SetLevel(log.DebugLevel)
+	}
 
 	// @step: load the swagger api spec
 	swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)

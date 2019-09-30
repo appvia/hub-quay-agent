@@ -92,6 +92,12 @@ func (c *clientImpl) Handle(ctx context.Context, method, uri string, payload, da
 		}
 		fields["code"] = resp.StatusCode
 
+		log.WithFields(log.Fields{
+			"method":   method,
+			"uri":      location,
+			"response": resp.StatusCode,
+		}).Debug("made quay api request")
+
 		// @step: decode the response if required and or apierror
 		if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
 			if data == nil {

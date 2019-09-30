@@ -96,6 +96,11 @@ func main() {
 				Usage:  "an authentication token used to permit api access `TOKEN`",
 				EnvVar: "QUAY_API_TOKEN",
 			},
+			cli.BoolFlag{
+				Name:   "verbose",
+				Usage:  "indicates if we should enable verbose logging `BOOL`",
+				EnvVar: "VERBOSE",
+			},
 		},
 	}
 
