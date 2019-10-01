@@ -76,7 +76,7 @@ func (r *repositoryImpl) ImageAnalysis(ctx context.Context, name, tag string) (*
 		return nil, errors.New("image tag does not exist")
 	}
 
-	uri := fmt.Sprintf("/repository/%s/image/%s/security", name, reference.ImageID)
+	uri := fmt.Sprintf("/repository/%s/image/%s/security?vulnerabilities=true", name, reference.ImageID)
 
 	return scan, r.Handle(ctx, http.MethodGet, uri, nil, scan)
 }
