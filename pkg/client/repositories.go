@@ -63,10 +63,8 @@ func (r *repositoryImpl) Create(ctx context.Context, repo *NewRepo) error {
 	return r.Handle(ctx, http.MethodPost, "/repository", &repo, nil)
 }
 
-// ImageAnalysis returns the image scan for a particular image tag
-func (r *repositoryImpl) ImageAnalysis(ctx context.Context, name, tag string) (*ImageAnalysis, error) {
-	scan := &ImageAnalysis{}
-
+// ImageAnalysisByTag returns the image scan for a particular image tag
+func (r *repositoryImpl) ImageAnalysisByTag(ctx context.Context, name, tag string) (*ImageAnalysis, error) {
 	// @step: check we have the tag
 	reference, err := r.GetTag(ctx, name, tag)
 	if err != nil {
@@ -76,7 +74,14 @@ func (r *repositoryImpl) ImageAnalysis(ctx context.Context, name, tag string) (*
 		return nil, errors.New("image tag does not exist")
 	}
 
-	uri := fmt.Sprintf("/repository/%s/image/%s/security?vulnerabilities=true", name, reference.ImageID)
+	return r.ImageAnalysisByImageID(ctx, name, reference.ImageID)
+}
+
+// ImageAnalysisByImageID returns the scan from an image id
+func (r *repositoryImpl) ImageAnalysisByImageID(ctx context.Context, name, imageID string) (*ImageAnalysis, error) {
+	scan := &ImageAnalysis{}
+
+	uri := fmt.Sprintf("/repository/%s/image/%s/security?vulnerabilities=true", name, imageID)
 
 	return scan, r.Handle(ctx, http.MethodGet, uri, nil, scan)
 }

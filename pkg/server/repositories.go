@@ -316,7 +316,7 @@ func (s *serverImpl) GetImageAnalysis(ctx context.Context, namespace, name, tag 
 
 	// @step: retrieve the image analysis for any our tags
 	for _, x := range filtered {
-		resp, err := s.Client.Repositories().ImageAnalysis(ctx, fullname, x.Name)
+		resp, err := s.Client.Repositories().ImageAnalysisByImageID(ctx, fullname, x.ImageID)
 		if err != nil {
 			return nil, newError("retrieving the image analysis", err).model()
 		}
