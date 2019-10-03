@@ -49,8 +49,10 @@ type Client interface {
 
 // Repositories is the contract to the repositories
 type Repositories interface {
-	// ImageAnalysis returns the scan analysis for a specific tag
-	ImageAnalysis(context.Context, string, string) (*ImageAnalysis, error)
+	// ImageAnalysisByTag returns the scan analysis for a specific tag
+	ImageAnalysisByTag(context.Context, string, string) (*ImageAnalysis, error)
+	// ImageAnalysisByImageID returns the scan for a image id
+	ImageAnalysisByImageID(context.Context, string, string) (*ImageAnalysis, error)
 	// Create is responsible for creating a repository
 	Create(context.Context, *NewRepo) error
 	// Delete is responsible for deleting a repository
