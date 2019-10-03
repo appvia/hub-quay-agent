@@ -26,7 +26,7 @@ import (
 )
 
 var (
-	release = "v0.0.6"
+	release = "v0.0.7"
 )
 
 func init() {
